@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.dreamfilm"
+       name="Dreamfilm"
+       version="0.0.1" 
+       provider-name="Daniel Lundin">
+  <requires>
+   <import addon="xbmc.python" version="2.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="fr">Les Emissions de France24</summary>
+    <description lang="fr">Les Emissions de France24</description>
+    <platform>all</platform>
+	<language>fr</language>
+	<email>abenbrahim@comcast.net</email>
+  </extension>
+</addon>
