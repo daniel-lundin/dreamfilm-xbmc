@@ -5,11 +5,30 @@ from bs4 import BeautifulSoup
 
 
 SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
+SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
+TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
+TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
+
 
 
 def search(query):
     r = requests.post(SEARCH_URL, data={'autoquery': query})
     return r
+
+
+def serie_iframe(clip_id):
+    r = requests.post(SERIE_URL, data={'action': 'show_movie', 'id': clip_id})
+    return r.text
+
+
+def top_movie_html():
+    r = requests.get(TOP_MOVIE_URL)
+    return r.text
+
+
+def top_serie_html():
+    r = requests.get(TOP_SERIE_URL)
+    return r.text
 
 
 def fetch_html(url):
@@ -33,6 +52,16 @@ def scrap_movie(html):
         if 'vk.com' in src:
             return src
     return None
+
+
+def scrap_top_list(html):
+    soup = BeautifulSoup(html)
+    movies = []
+    for movie in soup.find_all("div", class_="galery"):
+        title = movie.find('h4').string
+        href = movie.find('a').get('href')
+        movies.append((title, href))
+    return movies
 
 
 def scrap_serie(html):

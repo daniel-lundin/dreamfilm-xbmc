@@ -25,7 +25,6 @@ class Navigation(object):
                                                 isFolder=True)
 
     def add_movie_list_item(self, caption, url):
-
         params = {
             'action': 'list_seasons',
             'title': caption.encode('utf-8'),
@@ -65,11 +64,74 @@ class Navigation(object):
         li.setInfo(type='Video', infoLabels={"Title": title})
         self.xbmc.Player().play(item=url, listitem=li)
 
+    def add_season_list_item(self, title, season_number, serie_url):
+        params = {
+            'action': 'list_episodes',
+            'season_number': season_number,
+            'title': title,
+            'serie_url': serie_url
+        }
+        name = 'Season %d' % season_number
+        action_url = self.plugin_url + dreamfilm.encode_parameters(params)
+        list_item = self.xbmcgui.ListItem(name)
+        list_item.setInfo(type='Video', infoLabels={'Title': name})
+        return self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                                url=action_url,
+                                                listitem=list_item,
+                                                isFolder=True)
+
+    def add_episode_list_item(self, title, season_number,
+                              episode_number, clip_id):
+        params = {
+            'action': 'play_episode',
+            'title': episode_number,
+            'season_number': season_number,
+            'episode_number': episode_number,
+            'clip_id': clip_id
+        }
+        name = 'Episode %d' % episode_number
+        action_url = self.plugin_url + dreamfilm.encode_parameters(params)
+        list_item = self.xbmcgui.ListItem(name)
+        list_item.setInfo(type='Video', infoLabels={'Title': name})
+        return self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                                url=action_url,
+                                                listitem=list_item,
+                                                isFolder=False)
+
     def list_seasons(self, title, url):
         html = dreamfilm.fetch_html(url)
         seasons = dreamfilm.scrap_serie(html)
         for idx, s in enumerate(seasons):
-            self.add_menu_item('Season %d' % (idx + 1), 'list_episodes')
+            self.add_season_list_item(title, idx + 1, url)
+        self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_episodes(self, title, season_number, url):
+        html = dreamfilm.fetch_html(url)
+        seasons = dreamfilm.scrap_serie(html)
+        for idx, e in enumerate(seasons[season_number]):
+            self.add_episode_list_item(title, idx + 1, e)
+        self.xbmcplugin.endOfDirectory(self.handle)
+
+    def play_episode(self, title, season_number, episode_number, clip_id):
+        iframe_src = dreamfilm.serie_iframe(clip_id)
+        player_html = dreamfilm.fetch_html(iframe_src)
+        stream_urls = dreamfilm.scrap_player(player_html)
+        url = stream_urls[-1][1]
+        name = '%s S%02dE%02d' % (title, season_number, episode_number)
+        li = self.xbmcgui.ListItem(label=name, path=url)
+        li.setInfo(type='Video', infoLabels={"Title": name})
+        self.xbmc.Player().play(item=url, listitem=li)
+
+    def list_top_movies(self):
+        html = dreamfilm.top_movie_html()
+        for name, url in dreamfilm.scrap_top_list(html):
+            self.add_movie_list_item(name, url)
+        self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_top_series(self):
+        html = dreamfilm.top_serie_html()
+        for name, url in dreamfilm.scrap_top_list(html):
+            self.add_movie_list_item(name, url)
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def dispatch(self):
@@ -79,9 +141,22 @@ class Navigation(object):
             action = self.params['action']
             if action == 'search':
                 return self.search()
+            if action == 'topmovies':
+                return self.list_top_movies()
+            if action == 'topseries':
+                return self.list_top_series()
             if action == 'play_movie':
                 return self.play_movie(self.params['title'],
                                        self.params['movie_url'])
             if action == 'list_seasons':
                 return self.list_seasons(self.params['title'],
                                          self.params['movie_url'])
+            if action == 'list_episodes':
+                return self.list_episodes(self.params['title'],
+                                          self.params['season_number'],
+                                          self.params['serie_url'])
+            if action == 'play_episode':
+                return self.play_episode(self.params['title'],
+                                         self.params['season_number'],
+                                         self.params['episode_number'],
+                                         self.params['clip_id'])

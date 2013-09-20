@@ -35,6 +35,18 @@ class ParseTests(unittest.TestCase):
             seasons = dreamfilm.scrap_serie(html)
             self.assertEqual(len(seasons), 5)
 
+    def test_top_movies_parse(self):
+        with open('fixtures/topmovies.html') as f:
+            html = f.read()
+            movies = dreamfilm.scrap_top_list(html)
+            self.assertEqual(len(movies), 50)
+
+    def test_top_series_parse(self):
+        with open('fixtures/topseries.html') as f:
+            html = f.read()
+            movies = dreamfilm.scrap_top_list(html)
+            self.assertEqual(len(movies), 50)
+
 
 class NavigationTest(unittest.TestCase):
 
