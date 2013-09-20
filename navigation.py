@@ -26,7 +26,7 @@ class Navigation(object):
 
     def add_movie_list_item(self, caption, url):
         params = {
-            'action': 'list_seasons',
+            'action': 'play_movie' if 'movie' in url else 'list_seasons',
             'title': caption.encode('utf-8'),
             'movie_url': url,
             'type': 'serie' if 'serie' in url else 'movie'
@@ -47,7 +47,7 @@ class Navigation(object):
             'title': title,
             'serie_url': serie_url
         }
-        name = 'Season %d' % season_number
+        name = 'Season %d' % (season_number + 1)
         action_url = self.plugin_url + dreamfilm.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(name)
         list_item.setInfo(type='Video', infoLabels={'Title': name})
@@ -65,7 +65,7 @@ class Navigation(object):
             'episode_number': episode_number,
             'clip_id': clip_id
         }
-        name = 'Episode %d' % episode_number
+        name = 'Episode %d' % (episode_number + 1)
         action_url = self.plugin_url + dreamfilm.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(name)
         list_item.setInfo(type='Video', infoLabels={'Title': name})
@@ -94,13 +94,16 @@ class Navigation(object):
         player_url = dreamfilm.scrap_movie(dreamfilm.fetch_html(movie_url))
         stream_urls = dreamfilm.scrap_player(dreamfilm.fetch_html(player_url))
         url = stream_urls[-1][1]
+        self.xbmc.log('formats: ' + ", ".join([x[0] for x in stream_urls]),
+                      self.xbmc.LOGNOTICE)
         li = self.xbmcgui.ListItem(label=title, path=url)
         li.setInfo(type='Video', infoLabels={"Title": title})
         self.xbmc.Player().play(item=url, listitem=li)
 
     def play_episode(self, title, season_number, episode_number, clip_id):
-        iframe_src = dreamfilm.serie_iframe(clip_id)
-        player_html = dreamfilm.fetch_html(iframe_src)
+        iframe = dreamfilm.serie_iframe(clip_id)
+        player_url = dreamfilm.scrap_movie(iframe)
+        player_html = dreamfilm.fetch_html(player_url)
         stream_urls = dreamfilm.scrap_player(player_html)
         url = stream_urls[-1][1]
         name = '%s S%02dE%02d' % (title, season_number, episode_number)
@@ -112,14 +115,14 @@ class Navigation(object):
         html = dreamfilm.fetch_html(url)
         seasons = dreamfilm.scrap_serie(html)
         for idx, s in enumerate(seasons):
-            self.add_season_list_item(title, idx + 1, url)
+            self.add_season_list_item(title, idx, url)
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_episodes(self, title, season_number, url):
         html = dreamfilm.fetch_html(url)
         seasons = dreamfilm.scrap_serie(html)
         for idx, e in enumerate(seasons[season_number]):
-            self.add_episode_list_item(title, idx + 1, e)
+            self.add_episode_list_item(title, season_number, idx, e)
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_top_movies(self):
@@ -153,10 +156,10 @@ class Navigation(object):
                                          self.params['movie_url'])
             if action == 'list_episodes':
                 return self.list_episodes(self.params['title'],
-                                          self.params['season_number'],
+                                          int(self.params['season_number']),
                                           self.params['serie_url'])
             if action == 'play_episode':
                 return self.play_episode(self.params['title'],
-                                         self.params['season_number'],
-                                         self.params['episode_number'],
+                                         int(self.params['season_number']),
+                                         int(self.params['episode_number']),
                                          self.params['clip_id'])

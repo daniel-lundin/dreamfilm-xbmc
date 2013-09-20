@@ -9,11 +9,4 @@
   <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
   </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary lang="fr">Les Emissions de France24</summary>
-    <description lang="fr">Les Emissions de France24</description>
-    <platform>all</platform>
-	<language>fr</language>
-	<email>abenbrahim@comcast.net</email>
-  </extension>
 </addon>

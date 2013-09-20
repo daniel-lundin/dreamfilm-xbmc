@@ -17,7 +17,7 @@ def search(query):
 
 
 def serie_iframe(clip_id):
-    r = requests.post(SERIE_URL, data={'action': 'show_movie', 'id': clip_id})
+    r = requests.post(SERIE_URL, data={'action': 'showmovie', 'id': clip_id})
     return r.text
 
 
@@ -58,8 +58,9 @@ def scrap_top_list(html):
     soup = BeautifulSoup(html)
     movies = []
     for movie in soup.find_all("div", class_="galery"):
-        title = movie.find('h4').string
-        href = movie.find('a').get('href')
+        a = movie.find('a')
+        title = a.string.lstrip().rstrip()
+        href = a.get('href')
         movies.append((title, href))
     return movies
 
