@@ -60,7 +60,7 @@ class Navigation(object):
                               episode_number, clip_id):
         params = {
             'action': 'play_episode',
-            'title': episode_number,
+            'title': title,
             'season_number': season_number,
             'episode_number': episode_number,
             'clip_id': clip_id
@@ -106,7 +106,7 @@ class Navigation(object):
         player_html = dreamfilm.fetch_html(player_url)
         stream_urls = dreamfilm.scrap_player(player_html)
         url = stream_urls[-1][1]
-        name = '%s S%02dE%02d' % (title, season_number, episode_number)
+        name = '%s S%02dE%02d' % (title, season_number + 1, episode_number + 1)
         li = self.xbmcgui.ListItem(label=name, path=url)
         li.setInfo(type='Video', infoLabels={"Title": name})
         self.xbmc.Player().play(item=url, listitem=li)
