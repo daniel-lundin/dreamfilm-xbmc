@@ -8,7 +8,7 @@ SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
 SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
 TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
 TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
-
+HD_URL = 'http://dreamfilm.se/hd/720p/'
 
 
 def search(query):
@@ -28,6 +28,11 @@ def top_movie_html():
 
 def top_serie_html():
     r = requests.get(TOP_SERIE_URL)
+    return r.text
+
+
+def hd_html(page):
+    r = requests.get(HD_URL + ('?page=%d' % page))
     return r.text
 
 
@@ -63,6 +68,24 @@ def scrap_top_list(html):
         href = a.get('href')
         movies.append((title, href))
     return movies
+
+
+def scrap_hd(html):
+    html = html[html.find('<body'):]
+    galery_idx = html.find('<div class="menu-galery">')
+    matches = []
+    while galery_idx != -1:
+        a_tag_idx = html.find('<a href="http://dreamfilm.se', galery_idx)
+        link_end = html.find('"', a_tag_idx + 9)
+        link = html[a_tag_idx + 9:link_end]
+        a_tag_end = html.find('>', a_tag_idx)
+        a_tag_close = html.find('</a>', a_tag_end)
+        a_content = html[a_tag_end + 1:a_tag_close]
+        a_content = a_content.lstrip().rstrip()
+        matches.append((a_content, link))
+        galery_idx = html.find('<div class="menu-galery">', galery_idx + 1)
+    print matches
+    return matches
 
 
 def scrap_serie(html):

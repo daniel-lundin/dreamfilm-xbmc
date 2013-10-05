@@ -78,6 +78,7 @@ class Navigation(object):
         self.add_menu_item('Search', 'search')
         self.add_menu_item('Top movies', 'topmovies')
         self.add_menu_item('Top series', 'topseries')
+        self.add_menu_item('HD 720p', 'hd')
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def search(self):
@@ -137,6 +138,13 @@ class Navigation(object):
             self.add_movie_list_item(name, url)
         self.xbmcplugin.endOfDirectory(self.handle)
 
+    def list_hd(self, page):
+        html = dreamfilm.hd_html(page)
+        for name, url in dreamfilm.scrap_hd(html):
+            self.add_movie_list_item(name, url)
+        #self.add_menu_item('Nex', 'hd')
+        self.xbmcplugin.endOfDirectory(self.handle)
+
     def dispatch(self):
         if not self.params:
             return self.build_main_menu()
@@ -148,6 +156,8 @@ class Navigation(object):
                 return self.list_top_movies()
             if action == 'topseries':
                 return self.list_top_series()
+            if action == 'hd':
+                return self.list_hd(self.params.get('page', 0))
             if action == 'play_movie':
                 return self.play_movie(self.params['title'],
                                        self.params['movie_url'])

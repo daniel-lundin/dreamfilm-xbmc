@@ -47,6 +47,12 @@ class ParseTests(unittest.TestCase):
             movies = dreamfilm.scrap_top_list(html)
             self.assertEqual(len(movies), 50)
 
+    def test_top_hd(self):
+        with open('fixtures/tophd.html') as f:
+            html = f.read()
+            movies = dreamfilm.scrap_hd(html)
+            self.assertEqual(len(movies), 16)
+
 
 class NavigationTest(unittest.TestCase):
 
