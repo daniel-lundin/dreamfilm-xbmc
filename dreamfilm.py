@@ -48,7 +48,7 @@ def scrap_search(html):
         title = hit[hit.find("<h4>") + 4:hit.find("</h4>") - 4]
         a_start = hit.find("<a")
         a_end = hit.find(">", a_start)
-        href = hit[a_start + 9:a_end]
+        href = hit[a_start + 9:a_end - 1]
         matches.append((title.lstrip().rstrip(), href))
     return matches
 
