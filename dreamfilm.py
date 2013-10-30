@@ -1,7 +1,7 @@
 import sys
 import requests
 import urllib
-from bs4 import BeautifulSoup
+import re
 
 
 SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
@@ -42,33 +42,38 @@ def fetch_html(url):
 
 
 def scrap_search(html):
-    soup = BeautifulSoup(html)
+    hits = html.split('</li>')
     matches = []
-    for tag in soup.find_all('a'):
-        for hit in tag.find_all('h4'):
-            matches.append((hit.string, tag.get('href')))
+    for hit in hits[0:-1]:
+        title = hit[hit.find("<h4>") + 4:hit.find("</h4>") - 4]
+        a_start = hit.find("<a")
+        a_end = hit.find(">", a_start)
+        href = hit[a_start + 9:a_end]
+        matches.append((title.lstrip().rstrip(), href))
     return matches
 
-
 def scrap_movie(html):
-    soup = BeautifulSoup(html)
-    for iframe in soup.find_all('iframe'):
-        src = iframe.get('src')
+    iframe_idx = html.find("<iframe")
+    while iframe_idx != -1:
+        src = html[iframe_idx + 13:html.find(" ", iframe_idx + 14)]
+        src = src[0:-1]
         if 'vk.com' in src:
             return src
+        iframe_idx = html.find("<iframe", iframe_idx + 1)
     return None
 
-
 def scrap_top_list(html):
-    soup = BeautifulSoup(html)
-    movies = []
-    for movie in soup.find_all("div", class_="galery"):
-        a = movie.find('a')
-        title = a.string.lstrip().rstrip()
-        href = a.get('href')
-        movies.append((title, href))
-    return movies
+    items = html.split("<div class=\"span3 galery")[1:]
 
+    movies = []
+    for item in items:
+        a_start = item.find("<a")
+        href = item[a_start +  9:item.find("\"", a_start + 11)]
+        content_start = item.find(">", a_start)
+        content_end = item.find("</a>", a_start)
+        title = item[content_start+1:content_end]
+        movies.append((title.lstrip().rstrip(), href))
+    return movies
 
 def scrap_hd(html):
     html = html[html.find('<body'):]
@@ -84,19 +89,16 @@ def scrap_hd(html):
         a_content = a_content.lstrip().rstrip()
         matches.append((a_content, link))
         galery_idx = html.find('<div class="menu-galery">', galery_idx + 1)
-    print matches
     return matches
 
 
 def scrap_serie(html):
-    soup = BeautifulSoup(html)
-    seasons = []
-    for a in soup.find_all('a'):
-        href = a.get('href')
-        if href and href.startswith('#season'):
-            seasons.append([])
+    pattern = re.compile("href='#season_\d\d")
 
-    for idx, season in enumerate(seasons):
+    seasons = []
+    for idx, season in enumerate(pattern.findall(html)):
+        seasons.append([])
+
         season_start = html.find("id='season_%02d'" % (idx + 1))
         season_end = html.find("id='season", season_start + 1)
         if season_end == -1:
