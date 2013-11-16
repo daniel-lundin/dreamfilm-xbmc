@@ -1,6 +1,5 @@
-import sys
-import requests
 import urllib
+import urllib2
 import re
 
 
@@ -11,34 +10,35 @@ TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
 HD_URL = 'http://dreamfilm.se/hd/720p/'
 
 
+def _post(url, data):
+    data = urllib.urlencode(data)
+    content = urllib2.urlopen(url=url, data=data).read()
+    return content
+
+
 def search(query):
-    r = requests.post(SEARCH_URL, data={'autoquery': query})
-    return r
+    return _post(SEARCH_URL, {'autoquery': query})
 
 
 def serie_iframe(clip_id):
-    r = requests.post(SERIE_URL, data={'action': 'showmovie', 'id': clip_id})
-    return r.text
+    return _post(SERIE_URL, {'action': 'showmovie', 'id': clip_id})
 
 
 def top_movie_html():
-    r = requests.get(TOP_MOVIE_URL)
-    return r.text
+    return fetch_html(TOP_MOVIE_URL)
 
 
 def top_serie_html():
-    r = requests.get(TOP_SERIE_URL)
-    return r.text
+    return fetch_html(TOP_SERIE_URL)
 
 
 def hd_html(page):
-    r = requests.get(HD_URL + ('?page=%d' % page))
-    return r.text
+    return fetch_html(HD_URL + ('?page=%d' % page))
 
 
 def fetch_html(url):
-    r = requests.get(url)
-    return r.text
+    response = urllib2.urlopen(url)
+    return response.read()
 
 
 def scrap_search(html):
@@ -52,6 +52,7 @@ def scrap_search(html):
         matches.append((title.lstrip().rstrip(), href))
     return matches
 
+
 def scrap_movie(html):
     iframe_idx = html.find("<iframe")
     while iframe_idx != -1:
@@ -62,18 +63,20 @@ def scrap_movie(html):
         iframe_idx = html.find("<iframe", iframe_idx + 1)
     return None
 
+
 def scrap_top_list(html):
     items = html.split("<div class=\"span3 galery")[1:]
 
     movies = []
     for item in items:
         a_start = item.find("<a")
-        href = item[a_start +  9:item.find("\"", a_start + 11)]
+        href = item[a_start + 9:item.find("\"", a_start + 11)]
         content_start = item.find(">", a_start)
         content_end = item.find("</a>", a_start)
-        title = item[content_start+1:content_end]
+        title = item[content_start + 1:content_end]
         movies.append((title.lstrip().rstrip(), href))
     return movies
+
 
 def scrap_hd(html):
     html = html[html.find('<body'):]
@@ -149,5 +152,7 @@ def decode_parameters(parameters):
     return result
 
 if __name__ == '__main__':
-    resp = search(sys.argv[1])
-    print scrap_search(resp.text)
+    resp = search('homeland')
+    result = scrap_search(resp)
+    print "result from searching homeland ", result
+    print scrap_top_list(top_movie_html())
