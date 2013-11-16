@@ -86,7 +86,7 @@ class Navigation(object):
         kb.doModal()
         if kb.isConfirmed():
             text = kb.getText()
-            matches = dreamfilm.scrap_search(dreamfilm.search(text).text)
+            matches = dreamfilm.scrap_search(dreamfilm.search(text))
             for m in matches:
                 self.add_movie_list_item(m[0], m[1])
             self.xbmcplugin.endOfDirectory(self.handle)

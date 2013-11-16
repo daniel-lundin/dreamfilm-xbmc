@@ -13,7 +13,7 @@ HD_URL = 'http://dreamfilm.se/hd/720p/'
 def _post(url, data):
     data = urllib.urlencode(data)
     content = urllib2.urlopen(url=url, data=data).read()
-    return content
+    return content.decode('utf-8')
 
 
 def search(query):
@@ -45,7 +45,7 @@ def scrap_search(html):
     hits = html.split('</li>')
     matches = []
     for hit in hits[0:-1]:
-        title = hit[hit.find("<h4>") + 4:hit.find("</h4>") - 4]
+        title = hit[hit.find("<h4>") + 4:hit.find("</h4>")]
         a_start = hit.find("<a")
         a_end = hit.find(">", a_start)
         href = hit[a_start + 9:a_end - 1]
@@ -152,7 +152,7 @@ def decode_parameters(parameters):
     return result
 
 if __name__ == '__main__':
-    resp = search('homeland')
+    resp = search('bad')
     result = scrap_search(resp)
-    print "result from searching homeland ", result
+    print "result from searching bad ", result
     print scrap_top_list(top_movie_html())

@@ -60,14 +60,14 @@ class NavigationTest(unittest.TestCase):
         argv = ['plugin.video.dreamfilm', '1']
         navigation = Navigation(xbmc, xbmcplugin, xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(xbmcplugin.dir_items), 3)
+        self.assertEqual(len(xbmcplugin.dir_items), 4)
 
     def test_search_dispatch(self):
         params = dreamfilm.encode_parameters({'action': 'search'})
         argv = ['plugin.video.dreamfilm', '1', params]
         navigation = Navigation(xbmc, xbmcplugin, xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(xbmcplugin.dir_items), 8)
+        self.assertEqual(len(xbmcplugin.dir_items), 9)
 
 
 if __name__ == '__main__':
