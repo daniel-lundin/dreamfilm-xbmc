@@ -13,7 +13,7 @@ HD_URL = 'http://dreamfilm.se/hd/720p/'
 def _post(url, data):
     data = urllib.urlencode(data)
     content = urllib2.urlopen(url=url, data=data).read()
-    return content.decode('utf-8')
+    return content
 
 
 def search(query):

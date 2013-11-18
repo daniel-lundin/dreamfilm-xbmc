@@ -1,3 +1,7 @@
 version 0.0.1
 =============
 Initial version
+
+version 0.0.3
+=============
+Dependecy free

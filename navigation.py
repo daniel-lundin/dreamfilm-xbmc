@@ -27,7 +27,7 @@ class Navigation(object):
     def add_movie_list_item(self, caption, url):
         params = {
             'action': 'play_movie' if 'movie' in url else 'list_seasons',
-            'title': caption.encode('utf-8'),
+            'title': caption,
             'movie_url': url,
             'type': 'serie' if 'serie' in url else 'movie'
         }
