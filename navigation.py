@@ -24,7 +24,7 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=True)
 
-    def add_movie_list_item(self, caption, url):
+    def add_movie_list_item(self, caption, url, thumb_url=None):
         params = {
             'action': 'play_movie' if 'movie' in url else 'list_seasons',
             'title': caption,
@@ -34,7 +34,8 @@ class Navigation(object):
         is_folder = params['type'] == 'serie'
         action_url = self.plugin_url + dreamfilm.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(caption)
-        list_item.setInfo(type='Video', infoLabels={'Title': caption})
+        if thumb_url:
+            list_item.setThumbnailImage(thumb_url)
         return self.xbmcplugin.addDirectoryItem(handle=self.handle,
                                                 url=action_url,
                                                 listitem=list_item,
@@ -128,20 +129,20 @@ class Navigation(object):
 
     def list_top_movies(self):
         html = dreamfilm.top_movie_html()
-        for name, url in dreamfilm.scrap_top_list(html):
-            self.add_movie_list_item(name, url)
+        for name, url, thumb_url in dreamfilm.scrap_top_list(html):
+            self.add_movie_list_item(name, url, thumb_url)
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_top_series(self):
         html = dreamfilm.top_serie_html()
-        for name, url in dreamfilm.scrap_top_list(html):
-            self.add_movie_list_item(name, url)
+        for name, url, thumb_url in dreamfilm.scrap_top_list(html):
+            self.add_movie_list_item(name, url, thumb_url)
         self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_hd(self, page):
         html = dreamfilm.hd_html(page)
-        for name, url in dreamfilm.scrap_hd(html):
-            self.add_movie_list_item(name, url)
+        for name, url, thumb_url in dreamfilm.scrap_hd(html):
+            self.add_movie_list_item(name, url, thumb_url)
         #self.add_menu_item('Nex', 'hd')
         self.xbmcplugin.endOfDirectory(self.handle)
 

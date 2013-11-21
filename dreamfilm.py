@@ -74,7 +74,12 @@ def scrap_top_list(html):
         content_start = item.find(">", a_start)
         content_end = item.find("</a>", a_start)
         title = item[content_start + 1:content_end]
-        movies.append((title.lstrip().rstrip(), href))
+        img_start = item.find("<img src")
+        img_end = item.find(">", img_start)
+        img_src = item[img_start + 10: img_end - 1]
+        if 'http://' not in img_src:
+            img_src = "http://dreamfilm.se/" + img_src
+        movies.append((title.lstrip().rstrip(), href, img_src))
     return movies
 
 
@@ -86,11 +91,19 @@ def scrap_hd(html):
         a_tag_idx = html.find('<a href="http://dreamfilm.se', galery_idx)
         link_end = html.find('"', a_tag_idx + 9)
         link = html[a_tag_idx + 9:link_end]
+
         a_tag_end = html.find('>', a_tag_idx)
         a_tag_close = html.find('</a>', a_tag_end)
         a_content = html[a_tag_end + 1:a_tag_close]
         a_content = a_content.lstrip().rstrip()
-        matches.append((a_content, link))
+
+        img_start = html.find("<img src", a_tag_idx)
+        img_end = html.find(">", img_start)
+        img_src = html[img_start + 10: img_end - 1]
+        if 'http://' not in img_src:
+            img_src = "http://dreamfilm.se/" + img_src
+
+        matches.append((a_content, link, img_src))
         galery_idx = html.find('<div class="menu-galery">', galery_idx + 1)
     return matches
 

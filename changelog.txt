@@ -5,3 +5,7 @@ Initial version
 version 0.0.3
 =============
 Dependecy free
+
+version 0.0.4
+=============
+Thumbnails
