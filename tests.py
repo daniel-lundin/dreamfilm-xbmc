@@ -5,7 +5,7 @@ sys.path.append(os.path.join(curr_dir, 'resources/lib'))
 
 import unittest
 import dreamfilm
-from mocks import xbmc, xbmcplugin, xbmcgui
+from mocks import Xbmc, Xbmcplugin, Xbmcgui
 from navigation import Navigation
 
 
@@ -58,13 +58,19 @@ class NavigationTest(unittest.TestCase):
 
     def test_main_menu(self):
         argv = ['plugin.video.dreamfilm', '1']
-        navigation = Navigation(xbmc, xbmcplugin, xbmcgui, argv)
+        xbmc = Xbmc()
+        xbmcplugin = Xbmcplugin()
+        xbmcgui = Xbmcgui()
+        navigation = Navigation(xbmc, xbmcplugin, Xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(xbmcplugin.dir_items), 4)
+        self.assertEqual(len(Xbmcplugin.dir_items), 4)
 
     def test_search_dispatch(self):
         params = dreamfilm.encode_parameters({'action': 'search'})
         argv = ['plugin.video.dreamfilm', '1', params]
+        xbmc = Xbmc()
+        xbmcplugin = Xbmcplugin()
+        xbmcgui = Xbmcgui()
         navigation = Navigation(xbmc, xbmcplugin, xbmcgui, argv)
         navigation.dispatch()
         self.assertEqual(len(xbmcplugin.dir_items), 9)

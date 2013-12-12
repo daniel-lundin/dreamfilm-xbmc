@@ -2,6 +2,8 @@ import urllib
 import urllib2
 import re
 
+from cloudflare import dreamfilm_request
+
 
 SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
 SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
@@ -12,8 +14,15 @@ HD_URL = 'http://dreamfilm.se/hd/720p/'
 
 def _post(url, data):
     data = urllib.urlencode(data)
+    return dreamfilm_request(url, data)
     content = urllib2.urlopen(url=url, data=data).read()
     return content
+
+
+def fetch_html(url):
+    return dreamfilm_request(url)
+    response = urllib2.urlopen(url)
+    return response.read()
 
 
 def search(query):
@@ -34,11 +43,6 @@ def top_serie_html():
 
 def hd_html(page):
     return fetch_html(HD_URL + ('?page=%d' % page))
-
-
-def fetch_html(url):
-    response = urllib2.urlopen(url)
-    return response.read()
 
 
 def scrap_search(html):
