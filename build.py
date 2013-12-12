@@ -9,7 +9,8 @@ files = [
     'default.py',
     'dreamfilm.py',
     'icon.png',
-    'navigation.py'
+    'navigation.py',
+    'cloudflare.py'
 ]
 
 with open("addon.xml") as f:
