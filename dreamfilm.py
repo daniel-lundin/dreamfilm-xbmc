@@ -9,6 +9,7 @@ SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
 SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
 TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
 TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
+LATEST_MOVIE_URL = 'http://dreamfilm.se/movies/'
 HD_URL = 'http://dreamfilm.se/hd/720p/'
 
 
@@ -40,6 +41,8 @@ def top_movie_html():
 def top_serie_html():
     return fetch_html(TOP_SERIE_URL)
 
+def latest_movie_html():
+    return fetch_html(LATEST_MOVIE_URL)
 
 def hd_html(page):
     return fetch_html(HD_URL + ('?page=%d' % page))

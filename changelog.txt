@@ -14,3 +14,7 @@ version 0.0.5
 =============
 Fix to bypass cloudflare ddos protection
 Some videos are not hosted on vk.com, these still not work
+
+version 0.0.6
+=============
+Add latest movies
