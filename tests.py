@@ -63,7 +63,7 @@ class NavigationTest(unittest.TestCase):
         xbmcgui = Xbmcgui()
         navigation = Navigation(xbmc, xbmcplugin, Xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(Xbmcplugin.dir_items), 4)
+        self.assertEqual(len(xbmcplugin.dir_items), 5)
 
     def test_search_dispatch(self):
         params = dreamfilm.encode_parameters({'action': 'search'})

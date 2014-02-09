@@ -2,6 +2,7 @@
 
 
 class Xbmc(object):
+    BACK = 1
 
     class Keyboard(object):
         def __init__(self, placeholder, header, hidden):
@@ -24,7 +25,9 @@ class Xbmc(object):
     class Player(object):
         def play(self, *args, **kwargs):
             print 'playing'
-            print ", ".join(args)
+            print args
+            print kwargs
+            return Xbmc.BACK
 
     LOGERROR = 'ERROR'
     LOGNOTICE = 'NOTICE'
@@ -55,3 +58,8 @@ class Xbmcgui(object):
 
         def setThumbnailImage(self, thumb_url):
             pass
+
+    class Dialog(object):
+        def ok(self, title, msg):
+            print '[DIALOG] %s - %s' % (title, msg)
+            return Xbmc.BACK

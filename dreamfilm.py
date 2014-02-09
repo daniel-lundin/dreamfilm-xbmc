@@ -61,14 +61,15 @@ def scrap_search(html):
 
 
 def scrap_movie(html):
+    srcs = []
     iframe_idx = html.find("<iframe")
     while iframe_idx != -1:
         src = html[iframe_idx + 13:html.find(" ", iframe_idx + 14)]
         src = src[0:-1]
         if 'vk.com' in src:
-            return src
+            srcs.append(src)
         iframe_idx = html.find("<iframe", iframe_idx + 1)
-    return None
+    return srcs
 
 
 def scrap_top_list(html):

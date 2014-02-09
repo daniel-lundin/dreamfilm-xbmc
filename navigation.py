@@ -81,7 +81,7 @@ class Navigation(object):
         self.add_menu_item('Top series', 'topseries')
         self.add_menu_item('Latest movies', 'latestmovies')
         self.add_menu_item('HD 720p', 'hd')
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def search(self):
         kb = self.xbmc.Keyboard('', 'Search', False)
@@ -91,67 +91,98 @@ class Navigation(object):
             matches = dreamfilm.scrap_search(dreamfilm.search(text))
             for m in matches:
                 self.add_movie_list_item(m[0], m[1])
-            self.xbmcplugin.endOfDirectory(self.handle)
+            return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_movie(self, title, movie_url):
-        player_url = dreamfilm.scrap_movie(dreamfilm.fetch_html(movie_url))
+        player_urls = dreamfilm.scrap_movie(dreamfilm.fetch_html(movie_url))
+        if len(player_urls) > 1:
+            return self.list_movie_parts(title, player_urls)
+
+        if len(player_urls) == 0:
+            dialog = self.xbmcgui.Dialog()
+            return dialog.ok("Error", "No vk stream found")
+
+        return self.play_stream(title, player_urls[0])
+
+    def play_stream(self, title, player_url):
         stream_urls = dreamfilm.scrap_player(dreamfilm.fetch_html(player_url))
         url = stream_urls[-1][1]
         self.xbmc.log('formats: ' + ", ".join([x[0] for x in stream_urls]),
                       self.xbmc.LOGNOTICE)
         li = self.xbmcgui.ListItem(label=title, path=url)
         li.setInfo(type='Video', infoLabels={"Title": title})
-        self.xbmc.Player().play(item=url, listitem=li)
+        return self.xbmc.Player().play(item=url, listitem=li)
+
+
+    def list_movie_parts(self, title, player_urls):
+        for idx, url in enumerate(player_urls):
+            params = {
+                'action': 'play_movie_part',
+                'title': 'title',
+                'url': url
+            }
+            name = 'Part %d' % (idx + 1)
+            action_url = self.plugin_url + dreamfilm.encode_parameters(params)
+            list_item = self.xbmcgui.ListItem(name)
+            list_item.setInfo(type='Video', infoLabels={'Title': name})
+            self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                             url=action_url,
+                                             listitem=list_item,
+                                             isFolder=False)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_episode(self, title, season_number, episode_number, clip_id):
         iframe = dreamfilm.serie_iframe(clip_id)
-        player_url = dreamfilm.scrap_movie(iframe)
-        player_html = dreamfilm.fetch_html(player_url)
+        player_urls = dreamfilm.scrap_movie(iframe)
+        if len(player_urls) == 0:
+            dialog = self.xbmcgui.Dialog()
+            return dialog.ok("Error", "No vk stream found")
+        player_html = dreamfilm.fetch_html(player_urls[0])
         stream_urls = dreamfilm.scrap_player(player_html)
         url = stream_urls[-1][1]
         name = '%s S%02dE%02d' % (title, season_number + 1, episode_number + 1)
         li = self.xbmcgui.ListItem(label=name, path=url)
         li.setInfo(type='Video', infoLabels={"Title": name})
-        self.xbmc.Player().play(item=url, listitem=li)
+        return self.xbmc.Player().play(item=url, listitem=li)
 
     def list_seasons(self, title, url):
         html = dreamfilm.fetch_html(url)
         seasons = dreamfilm.scrap_serie(html)
         for idx, s in enumerate(seasons):
             self.add_season_list_item(title, idx, url)
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_episodes(self, title, season_number, url):
         html = dreamfilm.fetch_html(url)
         seasons = dreamfilm.scrap_serie(html)
         for idx, e in enumerate(seasons[season_number]):
             self.add_episode_list_item(title, season_number, idx, e)
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_top_movies(self):
         html = dreamfilm.top_movie_html()
         for name, url, thumb_url in dreamfilm.scrap_top_list(html):
             self.add_movie_list_item(name, url, thumb_url)
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_top_series(self):
         html = dreamfilm.top_serie_html()
         for name, url, thumb_url in dreamfilm.scrap_top_list(html):
             self.add_movie_list_item(name, url, thumb_url)
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_latest_movies(self):
         html = dreamfilm.latest_movie_html()
         for name, url, thumb_url in dreamfilm.scrap_top_list(html):
             self.add_movie_list_item(name, url, thumb_url)
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_hd(self, page):
         html = dreamfilm.hd_html(page)
         for name, url, thumb_url in dreamfilm.scrap_hd(html):
             self.add_movie_list_item(name, url, thumb_url)
         #self.add_menu_item('Nex', 'hd')
-        self.xbmcplugin.endOfDirectory(self.handle)
+        return self.xbmcplugin.endOfDirectory(self.handle)
 
     def dispatch(self):
         if not self.params:
@@ -183,3 +214,6 @@ class Navigation(object):
                                          int(self.params['season_number']),
                                          int(self.params['episode_number']),
                                          self.params['clip_id'])
+            if action == 'play_movie_part':
+                return self.play_stream(self.params['title'],
+                                        self.params['url'])
