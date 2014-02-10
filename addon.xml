@@ -1,6 +1,6 @@
-<addon id="plugin.video.dreamfilm" name="Dreamfilm" provider-name="Daniel Lundin" version="0.0.6">
+<addon id="plugin.video.dreamfilm" name="Dreamfilm" provider-name="Daniel Lundin" version="0.0.7">
   <requires>
-    <import addon="xbmc.python" version="2.0" />
+    <import addon="xbmc.python" version="2.1" />
   </requires>
   <extension library="default.py" point="xbmc.python.pluginsource">
     <provides>video</provides>

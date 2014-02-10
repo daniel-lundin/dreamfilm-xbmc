@@ -24,9 +24,7 @@ class Xbmc(object):
 
     class Player(object):
         def play(self, *args, **kwargs):
-            print 'playing'
-            print args
-            print kwargs
+            print 'playing stream %s (%s)'  % (kwargs['listitem'].infoLabels['Title'], kwargs['item'])
             return Xbmc.BACK
 
     LOGERROR = 'ERROR'
@@ -63,3 +61,9 @@ class Xbmcgui(object):
         def ok(self, title, msg):
             print '[DIALOG] %s - %s' % (title, msg)
             return Xbmc.BACK
+
+        def select(self, title, alternatives):
+            print '[DIALOG SELECT] %s' % title
+            print "\n".join(alternatives)
+            return 0  # Select first one"
+

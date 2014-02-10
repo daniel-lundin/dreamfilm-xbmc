@@ -100,13 +100,18 @@ class Navigation(object):
 
         if len(player_urls) == 0:
             dialog = self.xbmcgui.Dialog()
-            return dialog.ok("Error", "No vk stream found")
+            return dialog.ok("Error", "No stream found")
 
         return self.play_stream(title, player_urls[0])
 
     def play_stream(self, title, player_url):
-        stream_urls = dreamfilm.scrap_player(dreamfilm.fetch_html(player_url))
-        url = stream_urls[-1][1]
+        stream_urls = dreamfilm.streams_from_player_url(player_url)
+
+        # Ask user which stream to use
+        url = self.quality_select_dialog(stream_urls)
+        if url is None:
+            return
+
         self.xbmc.log('formats: ' + ", ".join([x[0] for x in stream_urls]),
                       self.xbmc.LOGNOTICE)
         li = self.xbmcgui.ListItem(label=title, path=url)
@@ -136,10 +141,14 @@ class Navigation(object):
         player_urls = dreamfilm.scrap_movie(iframe)
         if len(player_urls) == 0:
             dialog = self.xbmcgui.Dialog()
-            return dialog.ok("Error", "No vk stream found")
-        player_html = dreamfilm.fetch_html(player_urls[0])
-        stream_urls = dreamfilm.scrap_player(player_html)
-        url = stream_urls[-1][1]
+            return dialog.ok("Error", "No stream found")
+        stream_urls = dreamfilm.streams_from_player_url(player_urls[0])
+
+        # Ask user which stream to use
+        url = self.quality_select_dialog(stream_urls)
+        if url is None:
+            return
+
         name = '%s S%02dE%02d' % (title, season_number + 1, episode_number + 1)
         li = self.xbmcgui.ListItem(label=name, path=url)
         li.setInfo(type='Video', infoLabels={"Title": name})
@@ -183,6 +192,15 @@ class Navigation(object):
             self.add_movie_list_item(name, url, thumb_url)
         #self.add_menu_item('Nex', 'hd')
         return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def quality_select_dialog(self, stream_urls):
+        qualities = [s[0] for s in stream_urls]
+        dialog = self.xbmcgui.Dialog()
+        answer = dialog.select("Quality Select", qualities)
+        if answer == -1:
+            return
+        url = stream_urls[answer][1]
+        return url
 
     def dispatch(self):
         if not self.params:

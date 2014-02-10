@@ -3,6 +3,7 @@ import urllib2
 import re
 
 from cloudflare import dreamfilm_request
+import resolvers
 
 
 SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
@@ -67,6 +68,8 @@ def scrap_movie(html):
         src = html[iframe_idx + 13:html.find(" ", iframe_idx + 14)]
         src = src[0:-1]
         if 'vk.com' in src:
+            srcs.append(src)
+        if 'docs.google.com' in src:
             srcs.append(src)
         iframe_idx = html.find("<iframe", iframe_idx + 1)
     return srcs
@@ -141,21 +144,13 @@ def scrap_serie(html):
     return seasons
 
 
-def scrap_player(html):
-    start = html.index('<embed')
-    end = html.index('>', start + 1)
-    embed_tag = html[start:end]
-    fv_idx = embed_tag.index('flashvars')
-    flashvars = embed_tag[fv_idx + 10:-1]
-
-    params = flashvars.split('&amp;')
-    formats = []
-    for param in params:
-        key, value = param.split('=')
-        if key.startswith('url'):
-            formats.append((key, value))
-    return formats
-
+def streams_from_player_url(url):
+    html = fetch_html(url)
+    if 'vk.com' in url:
+        return resolvers.vk_streams(html)
+    if 'docs.google.com' in url:
+        return resolvers.google_streams(html)
+    return []
 
 def encode_parameters(params):
     return '?' + urllib.urlencode(params)

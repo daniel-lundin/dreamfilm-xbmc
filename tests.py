@@ -5,6 +5,7 @@ sys.path.append(os.path.join(curr_dir, 'resources/lib'))
 
 import unittest
 import dreamfilm
+import resolvers
 from mocks import Xbmc, Xbmcplugin, Xbmcgui
 from navigation import Navigation
 
@@ -26,7 +27,19 @@ class ParseTests(unittest.TestCase):
     def test_player_parse(self):
         with open('fixtures/player.html') as f:
             html = f.read()
-            formats = dreamfilm.scrap_player(html)
+            formats = resolvers.vk_streams(html)
+            self.assertEqual(len(formats), 2)
+
+    def test_google_stream_resolver(self):
+        with open('fixtures/google_player.html') as f:
+            html = f.read()
+            formats = resolvers.google_streams(html)
+            self.assertEqual(len(formats), 3)
+
+    def test_google_stream_serie_resolver(self):
+        with open('fixtures/google_player_serie.html') as f:
+            html = f.read()
+            formats = resolvers.google_streams(html)
             self.assertEqual(len(formats), 2)
 
     def test_serie_parse(self):
