@@ -24,6 +24,20 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=True)
 
+    def add_genre_list_item(self, caption, url):
+        params = {
+            'action': 'list_genre',
+            'title': caption,
+            'genre_url': url,
+        }
+        is_folder = True
+        action_url = self.plugin_url + dreamfilm.encode_parameters(params)
+        list_item = self.xbmcgui.ListItem(caption)
+        return self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                                url=action_url,
+                                                listitem=list_item,
+                                                isFolder=is_folder)
+
     def add_movie_list_item(self, caption, url, thumb_url=None):
         params = {
             'action': 'play_movie' if 'movie' in url else 'list_seasons',
@@ -81,6 +95,7 @@ class Navigation(object):
         self.add_menu_item('Top series', 'topseries')
         self.add_menu_item('Latest movies', 'latestmovies')
         self.add_menu_item('HD 720p', 'hd')
+        self.add_menu_item('Genres', 'genres')
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def search(self):
@@ -193,6 +208,20 @@ class Navigation(object):
         #self.add_menu_item('Nex', 'hd')
         return self.xbmcplugin.endOfDirectory(self.handle)
 
+    def list_genres(self, page):
+        html = dreamfilm.start_html(page)
+        for name, url in dreamfilm.scrap_genres(html):
+            self.add_genre_list_item(name, url)
+        #self.add_menu_item('Nex', 'hd')
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_genre(self, genre_url, page):
+        html = dreamfilm.fetch_html(genre_url)
+        for name, url, thumb_url in dreamfilm.scrap_top_list(html):
+            self.add_movie_list_item(name, url, thumb_url)
+        #self.add_menu_item('Nex', 'hd')
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
     def quality_select_dialog(self, stream_urls):
         qualities = [s[0] for s in stream_urls]
         dialog = self.xbmcgui.Dialog()
@@ -217,6 +246,10 @@ class Navigation(object):
                 return self.list_latest_movies()
             if action == 'hd':
                 return self.list_hd(self.params.get('page', 0))
+            if action == 'genres':
+                return self.list_genres(self.params.get('page', 0))
+            if action == 'list_genre':
+                return self.list_genre(self.params['genre_url'], self.params.get('page', 0))
             if action == 'play_movie':
                 return self.play_movie(self.params['title'],
                                        self.params['movie_url'])

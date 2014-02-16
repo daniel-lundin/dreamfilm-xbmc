@@ -22,7 +22,7 @@ class ParseTests(unittest.TestCase):
         with open('fixtures/movie.html') as f:
             html = f.read()
             url = dreamfilm.scrap_movie(html)
-            self.assertEqual(url, 'http://vk.com/video_ext.php?oid=180544485&id=163198922&hash=e88cf73c90e7a1e6&hd=1')
+            self.assertEqual(url[0], 'http://vk.com/video_ext.php?oid=180544485&id=163198922&hash=e88cf73c90e7a1e6&hd=1')
 
     def test_player_parse(self):
         with open('fixtures/player.html') as f:
@@ -65,6 +65,19 @@ class ParseTests(unittest.TestCase):
             html = f.read()
             movies = dreamfilm.scrap_hd(html)
             self.assertEqual(len(movies), 16)
+
+    def test_list_genres(self):
+        with open('fixtures/startpage.html') as f:
+            html = f.read()
+            genres = dreamfilm.scrap_genres(html)
+            self.assertEqual(len(genres), 23)
+
+    def test_list_genre(self):
+        with open('fixtures/genre_action.html') as f:
+            html = f.read()
+            movies = dreamfilm.scrap_top_list(html)
+            self.assertEqual(len(movies), 16)
+
 
 
 class NavigationTest(unittest.TestCase):

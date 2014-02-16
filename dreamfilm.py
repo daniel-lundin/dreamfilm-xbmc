@@ -12,6 +12,7 @@ TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
 TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
 LATEST_MOVIE_URL = 'http://dreamfilm.se/movies/'
 HD_URL = 'http://dreamfilm.se/hd/720p/'
+START_URL = 'http://dreamfilm.se/'
 
 
 def _post(url, data):
@@ -42,11 +43,17 @@ def top_movie_html():
 def top_serie_html():
     return fetch_html(TOP_SERIE_URL)
 
+
 def latest_movie_html():
     return fetch_html(LATEST_MOVIE_URL)
 
+
 def hd_html(page):
     return fetch_html(HD_URL + ('?page=%d' % page))
+
+
+def start_html(page):
+    return fetch_html(START_URL + ('?page=%d' % page))
 
 
 def scrap_search(html):
@@ -76,7 +83,7 @@ def scrap_movie(html):
 
 
 def scrap_top_list(html):
-    items = html.split("<div class=\"span3 galery")[1:]
+    items = html.split('<footer>')[0].split("<div class=\"span3 galery")[1:]
 
     movies = []
     for item in items:
@@ -85,9 +92,11 @@ def scrap_top_list(html):
         content_start = item.find(">", a_start)
         content_end = item.find("</a>", a_start)
         title = item[content_start + 1:content_end]
-        img_start = item.find("<img src")
+        #img_start = item.find("<img src")
+        img_start = item.find("<img")
+        img_start = item.find('src', img_start)
         img_end = item.find(">", img_start)
-        img_src = item[img_start + 10: img_end - 1]
+        img_src = item[img_start + 5:img_end - 1]
         if 'http://' not in img_src:
             img_src = "http://dreamfilm.se/" + img_src
         movies.append((title.lstrip().rstrip(), href, img_src))
@@ -143,6 +152,24 @@ def scrap_serie(html):
 
     return seasons
 
+def scrap_genres(html):
+    genres = []
+
+    cat_start = html.find('<ul class="nav nav-list">')
+    li_idx = html.find("<li class=''>", cat_start)
+    while li_idx != -1:
+
+        link_start = html.find("href='", li_idx) + 6
+        link_end = html.find("'", link_start + 1)
+
+        name_start = html.find(">", link_end + 1) + 1
+        name_end = html.find("<", name_start + 1)
+        genres.append((html[name_start:name_end], html[link_start:link_end]))
+
+        li_idx = html.find("<li class=''>", li_idx + 1)
+
+    return genres
+
 
 def streams_from_player_url(url):
     html = fetch_html(url)
@@ -151,6 +178,7 @@ def streams_from_player_url(url):
     if 'docs.google.com' in url:
         return resolvers.google_streams(html)
     return []
+
 
 def encode_parameters(params):
     return '?' + urllib.urlencode(params)

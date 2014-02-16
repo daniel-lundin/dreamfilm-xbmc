@@ -18,3 +18,12 @@ Some videos are not hosted on vk.com, these still not work
 version 0.0.6
 =============
 Add latest movies
+
+version 0.0.7
+=============
+Two-part movies
+
+version 0.0.8
+=============
+Genre list
+
