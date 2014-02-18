@@ -25,5 +25,5 @@ Two-part movies
 
 version 0.0.8
 =============
-Genre list
+Genre list, Gotham compatibility
 
