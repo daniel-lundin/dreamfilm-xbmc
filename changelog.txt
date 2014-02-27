@@ -27,3 +27,7 @@ version 0.0.8
 =============
 Genre list, Gotham compatibility
 
+version 0.0.9
+=============
+Refactor for better testability
+Resolve leanback-player-streams

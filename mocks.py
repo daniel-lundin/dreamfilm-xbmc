@@ -17,7 +17,7 @@ class Xbmc(object):
             return True
 
         def getText(self):
-            return 'bad'
+            return raw_input('search>> ')
 
     def log(self, msg, level):
         pass

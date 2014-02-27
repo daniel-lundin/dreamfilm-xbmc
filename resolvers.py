@@ -39,3 +39,9 @@ def google_streams(html):
 
     return streams
 
+
+def leanback_streams(html):
+    SOURCE_START = "source src=\""
+    start = html.find(SOURCE_START) + len(SOURCE_START)
+    end = html.find('"', start + 1)
+    return [('', html[start:end])]
