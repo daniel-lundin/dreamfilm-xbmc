@@ -1,5 +1,6 @@
 dreamfilm-xbmc
 ==============
+[![Build Status](https://travis-ci.org/diggidanne/dreamfilm-xbmc.png?branch=master)](https://travis-ci.org/diggidanne/dreamfilm-xbmc)
 Unofficial dreamfilm.se plugin for XBMC. Not yet published to a repository.
 
 Installation
