@@ -6,7 +6,7 @@ from cloudflare import dreamfilm_request
 import resolvers
 
 
-SEARCH_URL = 'http://dreamfilm.se/CMS/modules/search/ajax.php'
+SEARCH_URL = 'http://dreamfilm.se/search/'
 SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
 TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
 TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
@@ -90,7 +90,8 @@ class Dreamfilm(object):
         return response.read()
 
     def _search(self, query):
-        return self._post(SEARCH_URL, {'autoquery': query})
+        return self._fetch_html(SEARCH_URL + '?' +
+                                urllib.urlencode({'q': query}))
 
     def _serie_iframe(self, clip_id):
         return self._post(SERIE_URL, {'action': 'showmovie', 'id': clip_id})
@@ -111,14 +112,13 @@ class Dreamfilm(object):
         return self._fetch_html(START_URL + ('?page=%d' % page))
 
     def _scrap_search(self, html):
-        hits = html.split('</li>')
-        matches = []
-        for hit in hits[0:-1]:
-            title = hit[hit.find("<h4>") + 4:hit.find("</h4>")]
-            a_start = hit.find("<a")
-            a_end = hit.find(">", a_start)
-            href = hit[a_start + 9:a_end - 1]
-            matches.append((title.lstrip().rstrip(), href))
+        html = re.findall('<h3>(.+?)<footer>', html, re.DOTALL)[0]
+        urls = re.findall('<a href="(.+?)".+?<li>', html, re.DOTALL)
+        print '_scrap_search: urls: ' + str(len(urls))
+        titles = [x.lstrip().rstrip() for x in
+                  re.findall('<h4>(.+?)</h4>', html, re.DOTALL)]
+        print '_scrap_search: titles: ' + str(len(titles))
+        matches = zip(titles, urls)
         return matches
 
     def _scrap_movie(self, html):
