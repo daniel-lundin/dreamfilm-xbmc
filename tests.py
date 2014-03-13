@@ -13,7 +13,7 @@ class ParseTests(unittest.TestCase):
         with open('fixtures/search.html') as f:
             html = f.read()
             matches = dreamfilm.Dreamfilm()._scrap_search(html)
-            self.assertTrue(len(matches), 4)
+            self.assertTrue(len(matches), 3)
 
     def test_movie_parse(self):
         with open('fixtures/movie.html') as f:
@@ -116,7 +116,7 @@ class NavigationTests(unittest.TestCase):
         argv = ['plugin.video.dreamfilm', '1', params]
         navigation = Navigation(df, xbmc, xbmcplugin, xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(xbmcplugin.dir_items), 5)
+        self.assertEqual(len(xbmcplugin.dir_items), 3)
 
     def test_list_top_series(self):
         url = 'plugin.video.dreamfilm'
