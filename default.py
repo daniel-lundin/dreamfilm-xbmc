@@ -7,5 +7,5 @@ import dreamfilm
 
 
 if __name__ == '__main__':
-    navigation = Navigation(xbmc, dreamfilm.Dreamfilm(), xbmcplugin, xbmcgui, sys.argv)
+    navigation = Navigation(dreamfilm.Dreamfilm(), xbmc, xbmcplugin, xbmcgui, sys.argv)
     navigation.dispatch()
