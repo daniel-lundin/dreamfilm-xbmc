@@ -222,7 +222,7 @@ class Navigation(object):
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_latest_movies(self, page):
-        more_pages, matches = self.dreamfilm.list_latest_movies()
+        more_pages, matches = self.dreamfilm.list_latest_movies(page)
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:

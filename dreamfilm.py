@@ -28,8 +28,8 @@ class Dreamfilm(object):
         html = self._top_serie_html()
         return self._scrap_top_list(html)
 
-    def list_latest_movies(self):
-        html = self._latest_movie_html()
+    def list_latest_movies(self, page):
+        html = self._latest_movie_html(page)
         return self._scrap_top_list(html)
 
     def list_hd(self, page):
@@ -106,8 +106,8 @@ class Dreamfilm(object):
     def _top_serie_html(self):
         return self._fetch_html(TOP_SERIE_URL)
 
-    def _latest_movie_html(self):
-        return self._fetch_html(LATEST_MOVIE_URL)
+    def _latest_movie_html(self, page):
+        return self._fetch_html(LATEST_MOVIE_URL + ('?page=%d' % page))
 
     def _hd_html(self, page):
         return self._fetch_html(HD_URL + ('?page=%d' % page))
