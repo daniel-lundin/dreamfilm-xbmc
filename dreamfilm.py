@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import urllib
 import urllib2
 import re
@@ -16,8 +17,8 @@ START_URL = 'http://dreamfilm.se/'
 
 
 class Dreamfilm(object):
-    def search(self, text):
-        return self._scrap_search(self._search(text))
+    def search(self, text, page):
+        return self._scrap_search(self._search(text, page))
 
     def list_top_movies(self):
         html = self._top_movie_html()
@@ -47,8 +48,8 @@ class Dreamfilm(object):
         html = self._start_html(page=0)
         return self._scrap_genres(html)
 
-    def list_genre(self, genre_url):
-        html = self._fetch_html(genre_url)
+    def list_genre(self, genre_url, page):
+        html = self._fetch_html(genre_url, page=page)
         return self._scrap_top_list(html)
 
     def streams_from_clip_id(self, clip_id):
@@ -84,14 +85,17 @@ class Dreamfilm(object):
         content = urllib2.urlopen(url=url, data=data).read()
         return content
 
-    def _fetch_html(self, url):
+    def _fetch_html(self, url, page=None):
+        if page:
+            url = url + ('?page=%d' % page)
         return dreamfilm_request(url)
         response = urllib2.urlopen(url)
         return response.read()
 
-    def _search(self, query):
+    def _search(self, query, page):
         return self._fetch_html(SEARCH_URL + '?' +
-                                urllib.urlencode({'q': query}))
+                                urllib.urlencode({'q': query,
+                                                  'page': page}))
 
     def _serie_iframe(self, clip_id):
         return self._post(SERIE_URL, {'action': 'showmovie', 'id': clip_id})
@@ -112,6 +116,8 @@ class Dreamfilm(object):
         return self._fetch_html(START_URL + ('?page=%d' % page))
 
     def _scrap_search(self, html):
+        more_pages = html.find("class='pages'") > -1 and \
+            html.find("disabled'>Nästa") == -1
         html = re.findall('<h3>(.+?)<footer>', html, re.DOTALL)[0]
         urls = re.findall('<a href="(.+?)".+?<li>', html, re.DOTALL)
         print '_scrap_search: urls: ' + str(len(urls))
@@ -119,7 +125,7 @@ class Dreamfilm(object):
                   re.findall('<h4>(.+?)</h4>', html, re.DOTALL)]
         print '_scrap_search: titles: ' + str(len(titles))
         matches = zip(titles, urls)
-        return matches
+        return more_pages, matches
 
     def _scrap_movie(self, html):
         srcs = []
@@ -135,6 +141,8 @@ class Dreamfilm(object):
         return srcs
 
     def _scrap_top_list(self, html):
+        more_pages = html.find("class='pages'") > -1 and \
+            html.find("disabled'>Nästa") == -1
         items = html.split('<footer>')[0].split('<div class="span3 galery')[1:]
 
         movies = []
@@ -152,9 +160,11 @@ class Dreamfilm(object):
             if 'http://' not in img_src:
                 img_src = "http://dreamfilm.se/" + img_src
             movies.append((title.lstrip().rstrip(), href, img_src))
-        return movies
+        return more_pages, movies
 
     def _scrap_hd(self, html):
+        more_pages = html.find("class='pages'") > -1 and \
+            html.find("disabled'>Nästa") == -1
         html = html[html.find('<body'):]
         galery_idx = html.find('<div class="menu-galery">')
         matches = []
@@ -176,7 +186,7 @@ class Dreamfilm(object):
 
             matches.append((a_content, link, img_src))
             galery_idx = html.find('<div class="menu-galery">', galery_idx + 1)
-        return matches
+        return more_pages, matches
 
     def _scrap_serie(self, html):
         pattern = re.compile("href='#season_\d\d")
