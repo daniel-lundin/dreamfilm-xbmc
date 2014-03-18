@@ -31,3 +31,5 @@ version 0.0.9
 =============
 Refactor for better testability
 Resolve leanback-player-streams
+Improved search
+Paging
