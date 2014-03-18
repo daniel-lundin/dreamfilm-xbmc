@@ -134,7 +134,7 @@ class Navigation(object):
         for m in matches:
             self.add_movie_list_item(m[0], m[1])
         if more_pages:
-            self.add_menu_item('Next', 'search', page=page+1, search=text)
+            self.add_menu_item('Next', 'search', page=page + 1, search=text)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_movie(self, title, movie_url):
@@ -210,7 +210,7 @@ class Navigation(object):
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:
-            self.add_menu_item('Next', 'topmovies', page=page+1)
+            self.add_menu_item('Next', 'topmovies', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_top_series(self, page):
@@ -218,7 +218,7 @@ class Navigation(object):
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:
-            self.add_menu_item('Next', 'topseries', page=page+1)
+            self.add_menu_item('Next', 'topseries', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_latest_movies(self, page):
@@ -226,7 +226,7 @@ class Navigation(object):
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:
-            self.add_menu_item('Next', 'latestmovies', page=page+1)
+            self.add_menu_item('Next', 'latestmovies', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_hd(self, page):
@@ -234,7 +234,7 @@ class Navigation(object):
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:
-            self.add_menu_item('Next', 'hd', page=page+1)
+            self.add_menu_item('Next', 'hd', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_genres(self, page):
@@ -247,11 +247,10 @@ class Navigation(object):
         for name, url, thumb_url in matches:
             self.add_movie_list_item(name, url, thumb_url)
         if more_pages:
-            self.add_genre_list_item('Next', genre_url, page=page+1)
+            self.add_genre_list_item('Next', genre_url, page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def quality_select_dialog(self, stream_urls):
-        print stream_urls
         qualities = [s[0] for s in stream_urls]
         dialog = self.xbmcgui.Dialog()
         answer = 0
@@ -260,7 +259,6 @@ class Navigation(object):
             if answer == -1:
                 return
         url = stream_urls[answer][1]
-        print url
         return url
 
     def dispatch(self):

@@ -120,10 +120,8 @@ class Dreamfilm(object):
             html.find("disabled'>Nästa") == -1
         html = re.findall('<h3>(.+?)<footer>', html, re.DOTALL)[0]
         urls = re.findall('<a href="(.+?)".+?<li>', html, re.DOTALL)
-        print '_scrap_search: urls: ' + str(len(urls))
         titles = [x.lstrip().rstrip() for x in
                   re.findall('<h4>(.+?)</h4>', html, re.DOTALL)]
-        print '_scrap_search: titles: ' + str(len(titles))
         matches = zip(titles, urls)
         return more_pages, matches
 
