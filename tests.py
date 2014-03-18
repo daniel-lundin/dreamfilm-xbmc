@@ -12,7 +12,8 @@ class ParseTests(unittest.TestCase):
     def test_search_parse(self):
         with open('fixtures/search.html') as f:
             html = f.read()
-            matches = dreamfilm.Dreamfilm()._scrap_search(html)
+            more_pages, matches = dreamfilm.Dreamfilm()._scrap_search(html)
+            self.assertFalse(more_pages)
             self.assertTrue(len(matches), 3)
 
     def test_movie_parse(self):
@@ -60,19 +61,22 @@ class ParseTests(unittest.TestCase):
     def test_top_movies_parse(self):
         with open('fixtures/topmovies.html') as f:
             html = f.read()
-            movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            more_pages, movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            self.assertFalse(more_pages)
             self.assertEqual(len(movies), 50)
 
     def test_top_series_parse(self):
         with open('fixtures/topseries.html') as f:
             html = f.read()
-            movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            more_pages, movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            self.assertFalse(more_pages)
             self.assertEqual(len(movies), 50)
 
     def test_top_hd(self):
         with open('fixtures/tophd.html') as f:
             html = f.read()
-            movies = dreamfilm.Dreamfilm()._scrap_hd(html)
+            more_pages, movies = dreamfilm.Dreamfilm()._scrap_hd(html)
+            self.assertTrue(more_pages)
             self.assertEqual(len(movies), 16)
 
     def test_list_genres(self):
@@ -84,7 +88,8 @@ class ParseTests(unittest.TestCase):
     def test_list_genre(self):
         with open('fixtures/genre_action.html') as f:
             html = f.read()
-            movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            more_pages, movies = dreamfilm.Dreamfilm()._scrap_top_list(html)
+            self.assertTrue(more_pages)
             self.assertEqual(len(movies), 16)
 
 
