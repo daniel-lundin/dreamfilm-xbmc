@@ -126,7 +126,7 @@ class NavigationTests(unittest.TestCase):
         df = dreamfilm.Dreamfilm()
         navigation = Navigation(df, xbmc, xbmcplugin, xbmcgui, argv)
         navigation.dispatch()
-        self.assertEqual(len(xbmcplugin.dir_items), 6)
+        self.assertEqual(len(xbmcplugin.dir_items), 8)
 
     def test_search_dispatch(self):
         # Mock
