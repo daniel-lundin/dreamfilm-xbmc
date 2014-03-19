@@ -10,6 +10,8 @@ import resolvers
 SEARCH_URL = 'http://dreamfilm.se/search/'
 SERIE_URL = 'http://dreamfilm.se/CMS/modules/series/ajax.php'
 TOP_SERIE_URL = 'http://dreamfilm.se/top/serier/'
+SERIES_URL = 'http://dreamfilm.se/series/'
+MOVIES_URL = 'http://dreamfilm.se/movies/'
 TOP_MOVIE_URL = 'http://dreamfilm.se/top/filmer/'
 LATEST_MOVIE_URL = 'http://dreamfilm.se/movies/'
 HD_URL = 'http://dreamfilm.se/hd/720p/'
@@ -28,8 +30,16 @@ class Dreamfilm(object):
         html = self._top_serie_html()
         return self._scrap_top_list(html)
 
+    def list_series(self, page):
+        html = self._series_html(page)
+        return self._scrap_top_list(html)
+
     def list_latest_movies(self, page):
         html = self._latest_movie_html(page)
+        return self._scrap_top_list(html)
+
+    def list_movies(self, page):
+        html = self._movies_html(page)
         return self._scrap_top_list(html)
 
     def list_hd(self, page):
@@ -105,6 +115,12 @@ class Dreamfilm(object):
 
     def _top_serie_html(self):
         return self._fetch_html(TOP_SERIE_URL)
+
+    def _series_html(self, page):
+        return self._fetch_html(SERIES_URL + ('?page=%d' % page))
+
+    def _movies_html(self, page):
+        return self._fetch_html(MOVIES_URL + ('?page=%d' % page))
 
     def _latest_movie_html(self, page):
         return self._fetch_html(LATEST_MOVIE_URL + ('?page=%d' % page))

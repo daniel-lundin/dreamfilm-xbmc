@@ -33,3 +33,7 @@ Refactor for better testability
 Resolve leanback-player-streams
 Improved search
 Paging
+
+version 0.0.10
+=============
+Browse movies and series

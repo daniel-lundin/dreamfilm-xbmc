@@ -72,6 +72,28 @@ class ParseTests(unittest.TestCase):
             self.assertFalse(more_pages)
             self.assertEqual(len(movies), 50)
 
+    def test_series_parse(self):
+        df = dreamfilm.Dreamfilm()
+
+        with open('fixtures/series.html') as f:
+            df._series_html = mock.MagicMock(return_value=f.read())
+
+        more_pages, movies = df.list_series(1)
+        self.assertTrue(more_pages)
+        self.assertEqual(len(movies), 16)
+
+    def test_movies_parse(self):
+        df = dreamfilm.Dreamfilm()
+
+        with open('fixtures/movies.html') as f:
+            df._movies_html = mock.MagicMock(return_value=f.read())
+
+        more_pages, movies = df.list_movies(1)
+        self.assertTrue(more_pages)
+        self.assertEqual(len(movies), 16)
+
+
+
     def test_top_hd(self):
         with open('fixtures/tophd.html') as f:
             html = f.read()

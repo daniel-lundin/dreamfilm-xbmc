@@ -118,6 +118,8 @@ class Navigation(object):
         self.add_menu_item('Top movies', 'topmovies')
         self.add_menu_item('Top series', 'topseries')
         self.add_menu_item('Latest movies', 'latestmovies')
+        self.add_menu_item('Browse series', 'series')
+        self.add_menu_item('Browse movies', 'movies')
         self.add_menu_item('HD 720p', 'hd')
         self.add_menu_item('Genres', 'genres')
         return self.xbmcplugin.endOfDirectory(self.handle)
@@ -221,6 +223,22 @@ class Navigation(object):
             self.add_menu_item('Next', 'topseries', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
+    def list_series(self, page):
+        more_pages, matches = self.dreamfilm.list_series(page)
+        for name, url, thumb_url in matches:
+            self.add_movie_list_item(name, url, thumb_url)
+        if more_pages:
+            self.add_menu_item('Next', 'series', page=page + 1)
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_movies(self, page):
+        more_pages, matches = self.dreamfilm.list_movies(page)
+        for name, url, thumb_url in matches:
+            self.add_movie_list_item(name, url, thumb_url)
+        if more_pages:
+            self.add_menu_item('Next', 'movies', page=page + 1)
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
     def list_latest_movies(self, page):
         more_pages, matches = self.dreamfilm.list_latest_movies(page)
         for name, url, thumb_url in matches:
@@ -275,6 +293,10 @@ class Navigation(object):
                 return self.list_top_series(page)
             if action == 'latestmovies':
                 return self.list_latest_movies(page)
+            if action == 'series':
+                return self.list_series(page)
+            if action == 'movies':
+                return self.list_movies(page)
             if action == 'hd':
                 return self.list_hd(page)
             if action == 'genres':
