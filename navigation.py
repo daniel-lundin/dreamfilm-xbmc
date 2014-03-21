@@ -187,6 +187,7 @@ class Navigation(object):
         return self.select_stream(title, streams)
 
     def play_episode(self, title, season_number, episode_number, clip_id):
+        print clip_id
         streams = self.dreamfilm.streams_from_clip_id(clip_id)
         if len(streams) == 0:
             dialog = self.xbmcgui.Dialog()

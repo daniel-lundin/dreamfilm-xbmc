@@ -218,9 +218,11 @@ class Dreamfilm(object):
             while curr_a != -1 and curr_a < season_end:
                 curr_a_end = html.find('</a>', curr_a)
                 a = html[curr_a:curr_a_end]
+                "onclick=\"epselect('"
                 if a.find("class='showmovie") != -1:
-                    href_idx = a.find('href')
-                    clip_id = a[href_idx + 6: a.find('"', href_idx + 7)]
+                    clip_id_marker = "onclick=\"epselect('"
+                    clip_start = a.find(clip_id_marker) + len(clip_id_marker)
+                    clip_id = a[clip_start: a.find("'", clip_start + 1)]
                     seasons[idx].append(clip_id)
                 curr_a = html.find('<a', curr_a + 1)
 
@@ -244,4 +246,3 @@ class Dreamfilm(object):
             li_idx = html.find("<li class=''>", li_idx + 1)
 
         return genres
-

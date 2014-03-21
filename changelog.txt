@@ -37,3 +37,7 @@ Paging
 version 0.0.10
 =============
 Browse movies and series
+
+version 0.0.11
+=============
+Bug fix for updated serie page
