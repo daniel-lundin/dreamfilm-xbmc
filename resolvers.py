@@ -11,8 +11,12 @@ def vk_streams(html):
     params = flashvars.split('&amp;')
     formats = []
     for param in params:
-        key, value = param.split('=')
+        parts = param.split('=')
+        key = parts[0]
+        value = parts[1]
         if key.startswith('url'):
+            if '?' in value:
+                value = value[0:value.find('?')]
             formats.append((key, value))
     return formats
 

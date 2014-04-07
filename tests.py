@@ -28,6 +28,12 @@ class ParseTests(unittest.TestCase):
             formats = resolvers.vk_streams(html)
             self.assertEqual(len(formats), 2)
 
+    def test_vk_resolver(self):
+        with open('fixtures/vknew.html') as f:
+            html = f.read()
+            formats = resolvers.vk_streams(html)
+            self.assertEqual(len(formats), 2)
+
     def test_leanback_player_parse(self):
         with open('fixtures/leanback_player.html') as f:
             html = f.read()

@@ -41,3 +41,7 @@ Browse movies and series
 version 0.0.11
 =============
 Bug fix for updated serie page
+
+version 0.0.12
+=============
+Update for new vk-hosting
