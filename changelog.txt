@@ -45,3 +45,7 @@ Bug fix for updated serie page
 version 0.0.12
 =============
 Update for new vk-hosting
+
+version 0.0.13
+=============
+Fix for new video hosting

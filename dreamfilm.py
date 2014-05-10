@@ -71,6 +71,8 @@ class Dreamfilm(object):
             return self.streams_from_player_url(player_urls[0])
         elif 'leanback-player-video' in html:
             return resolvers.leanback_streams(html)
+        elif 'leanback-player-flash-fallback' in html:
+            return resolvers.leanback_streams(html)
 
 
     def streams_from_player_url(self, url):
@@ -145,12 +147,13 @@ class Dreamfilm(object):
         srcs = []
         iframe_idx = html.find("<iframe")
         while iframe_idx != -1:
-            src = html[iframe_idx + 13:html.find(" ", iframe_idx + 14)]
-            src = src[0:-1]
-            if 'vk.com' in src:
-                srcs.append(src)
-            if 'docs.google.com' in src:
-                srcs.append(src)
+            m = re.search(r"src=['\"](.*?)['\"]", html[iframe_idx:])
+            if m:
+                src = m.groups(1)[0]
+                if 'vk.com' in src:
+                    srcs.append(src)
+                if 'docs.google.com' in src:
+                    srcs.append(src)
             iframe_idx = html.find("<iframe", iframe_idx + 1)
         return srcs
 

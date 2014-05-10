@@ -22,6 +22,10 @@ class ParseTests(unittest.TestCase):
             url = dreamfilm.Dreamfilm()._scrap_movie(html)
             self.assertEqual(url[0], 'http://vk.com/video_ext.php?oid=180544485&id=163198922&hash=e88cf73c90e7a1e6&hd=1')
 
+    def test_google_movie_parse(self):
+        html = "\xef\xbb\xbf<iframe allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' src='https://docs.google.com/file/d/0B5Q8_I828Qbeam40RlRDNTVnWVk/preview' width='530' height='245' frameborder='0'></iframe>"
+        url = dreamfilm.Dreamfilm()._scrap_movie(html)
+
     def test_player_parse(self):
         with open('fixtures/player.html') as f:
             html = f.read()
