@@ -1,3 +1,6 @@
+Note: Currently broken due to new mandatory login at dreamfilm.se
+=================================================================
+
 dreamfilm-xbmc
 ==============
 [![Build Status](https://travis-ci.org/diggidanne/dreamfilm-xbmc.png?branch=master)](https://travis-ci.org/diggidanne/dreamfilm-xbmc)
