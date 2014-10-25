@@ -1,10 +1,11 @@
 import urllib
+import dreamfilm
+import json
 
 
 class Navigation(object):
 
-    def __init__(self, dreamfilm, xbmc, xbmcplugin, xbmcgui, argv):
-        self.dreamfilm = dreamfilm
+    def __init__(self, xbmc, xbmcplugin, xbmcgui, argv):
         self.xbmc = xbmc
         self.xbmcplugin = xbmcplugin
         self.xbmcgui = xbmcgui
@@ -17,7 +18,17 @@ class Navigation(object):
 
     @staticmethod
     def encode_parameters(params):
-        return '?' + urllib.urlencode(params)
+        #print params
+        #return '?' + urllib.urlencode(params)
+        quoted_params = []
+        for key in params:
+            value = unicode(params[key])
+            if isinstance(params[key], dict):
+                value = json.dumps(params[key])
+            if isinstance(params[key], list):
+                value = json.dumps(params[key])
+            quoted_params.append((urllib.quote(key), urllib.quote(value.encode('unicode_escape'))))
+        return "?" + "&".join(["%s=%s" % (a, b) for a, b in quoted_params])
 
     @staticmethod
     def decode_parameters(parameters):
@@ -62,31 +73,35 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=is_folder)
 
-    def add_movie_list_item(self, caption, url, thumb_url=None):
+    def add_movie_list_item(self, item):
+        action = 'play_movie'
+        if item.is_serie:
+            action = 'list_seasons'
+        if len(item.players) > 1:
+            action = 'list_movie_parts'
         params = {
-            'action': 'play_movie' if 'movie' in url else 'list_seasons',
-            'title': caption,
-            'movie_url': url,
-            'type': 'serie' if 'serie' in url else 'movie'
+            'action': action,
+            'id': item.id,
+            'title': item.title,
+            'players': item.players
         }
-        is_folder = params['type'] == 'serie'
+        is_folder = (action == 'play_movie')
         action_url = self.plugin_url + Navigation.encode_parameters(params)
-        list_item = self.xbmcgui.ListItem(caption)
-        if thumb_url:
-            list_item.setThumbnailImage(thumb_url)
+        list_item = self.xbmcgui.ListItem(item.title)
+        list_item.setThumbnailImage(item.poster_url)
         return self.xbmcplugin.addDirectoryItem(handle=self.handle,
                                                 url=action_url,
                                                 listitem=list_item,
                                                 isFolder=is_folder)
 
-    def add_season_list_item(self, title, season_number, serie_url):
+    def add_season_list_item(self, title, serie_id, season_index, season_number):
         params = {
             'action': 'list_episodes',
-            'season_number': season_number,
+            'serie_id': serie_id,
+            'season_index': season_index,
             'title': title,
-            'serie_url': serie_url
         }
-        name = 'Season %d' % (season_number + 1)
+        name = 'Season %s' % (season_number)
         action_url = self.plugin_url + Navigation.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(name)
         list_item.setInfo(type='Video', infoLabels={'Title': name})
@@ -95,16 +110,15 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=True)
 
-    def add_episode_list_item(self, title, season_number,
-                              episode_number, clip_id):
+    def add_episode_list_item(self, title, episode):
         params = {
             'action': 'play_episode',
             'title': title,
-            'season_number': season_number,
-            'episode_number': episode_number,
-            'clip_id': clip_id
+            'season_number': episode.season,
+            'episode_number': episode.episode,
+            'url': episode.url
         }
-        name = 'Episode %d' % (episode_number + 1)
+        name = 'Episode %s' % (episode.episode,)
         action_url = self.plugin_url + Navigation.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(name)
         list_item.setInfo(type='Video', infoLabels={'Title': name})
@@ -115,13 +129,13 @@ class Navigation(object):
 
     def build_main_menu(self):
         self.add_menu_item('Search', 'search')
-        self.add_menu_item('Top movies', 'topmovies')
-        self.add_menu_item('Top series', 'topseries')
-        self.add_menu_item('Latest movies', 'latestmovies')
+        self.add_menu_item('Popular movies', 'popular_movies')
+        self.add_menu_item('Popular series', 'popular_series')
+        self.add_menu_item('Latest uploaded', 'latest_uploaded')
         self.add_menu_item('Browse series', 'series')
         self.add_menu_item('Browse movies', 'movies')
-        self.add_menu_item('HD 720p', 'hd')
-        self.add_menu_item('Genres', 'genres')
+        #self.add_menu_item('HD 720p', 'hd')
+        #self.add_menu_item('Genres', 'genres')
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def search(self, text, page):
@@ -132,23 +146,21 @@ class Navigation(object):
                 text = kb.getText()
             else:
                 return
-        more_pages, matches = self.dreamfilm.search(text, page)
-        for m in matches:
-            self.add_movie_list_item(m[0], m[1])
-        if more_pages:
-            self.add_menu_item('Next', 'search', page=page + 1, search=text)
+        items = dreamfilm.search(text)
+        for item in items:
+            self.add_movie_list_item(item)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def play_movie(self, title, movie_url):
-        player_urls = self.dreamfilm.movie_player_urls(movie_url)
-        if len(player_urls) > 1:
-            return self.list_movie_parts(title, player_urls)
+    def play_movie(self, title, players_data):
+        players = json.loads(players_data)
+        #if len(players) > 1:
+        #    return self.list_movie_parts(title, players)
 
-        if len(player_urls) == 0:
+        streams = dreamfilm.streams_from_player_url(players[0]['url'])
+        if len(streams) == 0:
             dialog = self.xbmcgui.Dialog()
             return dialog.ok("Error", "No stream found")
 
-        streams = self.dreamfilm.streams_from_player_url(player_urls[0])
         return self.select_stream(title, streams)
 
     def select_stream(self, title, streams):
@@ -165,14 +177,15 @@ class Navigation(object):
         li.setInfo(type='Video', infoLabels={"Title": title})
         return self.xbmc.Player().play(item=stream, listitem=li)
 
-    def list_movie_parts(self, title, player_urls):
-        for idx, url in enumerate(player_urls):
+    def list_movie_parts(self, title, players_data):
+        players = json.loads(players_data)
+        for player in players:
             params = {
                 'action': 'play_movie_part',
-                'title': 'title',
-                'url': url
+                'title': title,
+                'url': player['url']
             }
-            name = 'Part %d' % (idx + 1)
+            name = player['title']
             action_url = self.plugin_url + Navigation.encode_parameters(params)
             list_item = self.xbmcgui.ListItem(name)
             list_item.setInfo(type='Video', infoLabels={'Title': name})
@@ -183,91 +196,85 @@ class Navigation(object):
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_movie_part(self, title, player_url):
-        streams = self.dreamfilm.streams_from_player_url(player_url)
+        print player_url
+        streams = dreamfilm.streams_from_player_url(player_url)
         return self.select_stream(title, streams)
 
-    def play_episode(self, title, season_number, episode_number, clip_id):
-        print clip_id
-        streams = self.dreamfilm.streams_from_clip_id(clip_id)
+    def play_episode(self, title, season_number, episode_number, url):
+        streams = dreamfilm.streams_from_player_url(url)
         if len(streams) == 0:
             dialog = self.xbmcgui.Dialog()
             return dialog.ok("Error", "No stream found")
 
-        name = '%s S%02dE%02d' % (title, season_number + 1, episode_number + 1)
+        name = '%s S%sE%s' % (title, season_number, episode_number)
         return self.select_stream(name, streams)
 
-    def list_seasons(self, title, url):
-        seasons = self.dreamfilm.list_seasons(serie_url=url)
-        for idx, s in enumerate(seasons):
-            self.add_season_list_item(title, idx, url)
+    def list_seasons(self, serie_id, title):
+        seasons = dreamfilm.list_seasons(serie_id)
+        for idx, season in enumerate(seasons):
+            self.add_season_list_item(title, season.serie_id, idx, season.season_number)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_episodes(self, title, season_number, url):
-        seasons = self.dreamfilm.list_episodes(serie_url=url)
-        for idx, e in enumerate(seasons[season_number]):
-            self.add_episode_list_item(title, season_number, idx, e)
+    def list_episodes(self, title, serie_id, season_index):
+        seasons = dreamfilm.list_seasons(serie_id)
+        for episode in seasons[season_index].episodes:
+            self.add_episode_list_item(title, episode)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_top_movies(self, page):
-        more_pages, matches = self.dreamfilm.list_top_movies()
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'topmovies', page=page + 1)
+    def list_popular_movies(self, page):
+        items = dreamfilm.list_popular_movies(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'popular_movies', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_top_series(self, page):
-        more_pages, matches = self.dreamfilm.list_top_series()
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'topseries', page=page + 1)
+    def list_popular_series(self, page):
+        items = dreamfilm.list_popular_series(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'popular_series', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_series(self, page):
-        more_pages, matches = self.dreamfilm.list_series(page)
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'series', page=page + 1)
+        items = dreamfilm.list_series_alphanumeric(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'series', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_movies(self, page):
-        more_pages, matches = self.dreamfilm.list_movies(page)
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'movies', page=page + 1)
+        items = dreamfilm.list_movies_alphanumeric(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'movies', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_latest_movies(self, page):
-        more_pages, matches = self.dreamfilm.list_latest_movies(page)
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'latestmovies', page=page + 1)
+    def list_latest_uploaded(self, page):
+        items = dreamfilm.list_latest_added(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'latest_uploaded', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def list_hd(self, page):
-        more_pages, matches = self.dreamfilm.list_hd(page)
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_menu_item('Next', 'hd', page=page + 1)
+        items = dreamfilm.list_hd_movies(page)
+        for item in items:
+            self.add_movie_list_item(item)
+        self.add_menu_item('Next', 'hd', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_genres(self, page):
-        for name, url in self.dreamfilm.list_genres():
-            self.add_genre_list_item(name, url)
-        return self.xbmcplugin.endOfDirectory(self.handle)
+    #def list_genres(self, page):
+    #    for name, url in self.dreamfilm.list_genres():
+    #        self.add_genre_list_item(name, url)
+    #    return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_genre(self, genre_url, page):
-        more_pages, matches = self.dreamfilm.list_genre(genre_url, page)
-        for name, url, thumb_url in matches:
-            self.add_movie_list_item(name, url, thumb_url)
-        if more_pages:
-            self.add_genre_list_item('Next', genre_url, page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
+    #def list_genre(self, genre_url, page):
+    #    more_pages, matches = self.dreamfilm.list_genre(genre_url, page)
+    #    for name, url, thumb_url in matches:
+    #        self.add_movie_list_item(name, url, thumb_url)
+    #    if more_pages:
+    #        self.add_genre_list_item('Next', genre_url, page=page + 1)
+    #    return self.xbmcplugin.endOfDirectory(self.handle)
 
     def quality_select_dialog(self, stream_urls):
         qualities = [s[0] for s in stream_urls]
@@ -288,12 +295,13 @@ class Navigation(object):
             page = int(self.params.get('page', 0))
             if action == 'search':
                 return self.search(self.params.get('search', None), page)
-            if action == 'topmovies':
-                return self.list_top_movies(page)
-            if action == 'topseries':
-                return self.list_top_series(page)
-            if action == 'latestmovies':
-                return self.list_latest_movies(page)
+
+            if action == 'popular_movies':
+                return self.list_popular_movies(page)
+            if action == 'popular_series':
+                return self.list_popular_series(page)
+            if action == 'latest_uploaded':
+                return self.list_latest_uploaded(page)
             if action == 'series':
                 return self.list_series(page)
             if action == 'movies':
@@ -306,22 +314,21 @@ class Navigation(object):
                 return self.list_genre(self.params['genre_url'],
                                        page)
             if action == 'play_movie':
-                return self.play_movie(self.params['title'],
-                                       self.params['movie_url'])
+                return self.play_movie(self.params['title'], self.params['players'])
+            if action == 'list_movie_parts':
+                return self.list_movie_parts(self.params['title'], self.params['players'])
             if action == 'list_seasons':
-                return self.list_seasons(self.params['title'],
-                                         self.params['movie_url'])
+                return self.list_seasons(self.params['id'],
+                                         self.params['title'])
             if action == 'list_episodes':
                 return self.list_episodes(self.params['title'],
-                                          int(self.params['season_number']),
-                                          self.params['serie_url'])
+                                          int(self.params['serie_id']),
+                                          int(self.params['season_index']))
             if action == 'play_episode':
                 return self.play_episode(self.params['title'],
                                          int(self.params['season_number']),
                                          int(self.params['episode_number']),
-                                         self.params['clip_id'])
+                                         self.params['url'])
             if action == 'play_movie_part':
                 return self.play_movie_part(self.params['title'],
                                             self.params['url'])
-                return self.play_stream(self.params['title'],
-                                        self.params['url'])

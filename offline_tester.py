@@ -1,5 +1,4 @@
 from navigation import Navigation
-import dreamfilm
 from mocks import Xbmc, Xbmcgui, Xbmcplugin
 
 if __name__ == '__main__':
@@ -10,7 +9,7 @@ if __name__ == '__main__':
         xbmc = Xbmc()
         xbmcplugin = Xbmcplugin()
         xbmcgui = Xbmcgui()
-        navigation = Navigation(dreamfilm.Dreamfilm(), xbmc, xbmcplugin, xbmcgui, argv)
+        navigation = Navigation(xbmc, xbmcplugin, xbmcgui, argv)
         ret = navigation.dispatch()
         if ret == Xbmc.BACK:
             history = history[:-1]

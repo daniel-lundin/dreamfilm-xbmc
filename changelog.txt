@@ -49,3 +49,7 @@ Update for new vk-hosting
 version 0.0.13
 =============
 Fix for new video hosting
+
+version 0.0.14
+=============
+Working version with the new API. Still missing some resolvers.

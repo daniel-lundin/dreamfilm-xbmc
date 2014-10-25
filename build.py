@@ -11,7 +11,8 @@ files = [
     'icon.png',
     'navigation.py',
     'cloudflare.py',
-    'resolvers.py'
+    'resolvers.py',
+    'models.py'
 ]
 
 with open("addon.xml") as f:
