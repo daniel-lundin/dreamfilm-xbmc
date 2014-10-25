@@ -18,8 +18,6 @@ class Navigation(object):
 
     @staticmethod
     def encode_parameters(params):
-        #print params
-        #return '?' + urllib.urlencode(params)
         quoted_params = []
         for key in params:
             value = unicode(params[key])
@@ -57,27 +55,27 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=True)
 
-    def add_genre_list_item(self, caption, url, page=None):
-        params = {
-            'action': 'list_genre',
-            'title': caption,
-            'genre_url': url,
-        }
-        if page:
-            params['page'] = page
-        is_folder = True
-        action_url = self.plugin_url + Navigation.encode_parameters(params)
-        list_item = self.xbmcgui.ListItem(caption)
-        return self.xbmcplugin.addDirectoryItem(handle=self.handle,
-                                                url=action_url,
-                                                listitem=list_item,
-                                                isFolder=is_folder)
+    #def add_genre_list_item(self, caption, url, page=None):
+    #    params = {
+    #        'action': 'list_genre',
+    #        'title': caption,
+    #        'genre_url': url,
+    #    }
+    #    if page:
+    #        params['page'] = page
+    #    is_folder = True
+    #    action_url = self.plugin_url + Navigation.encode_parameters(params)
+    #    list_item = self.xbmcgui.ListItem(caption)
+    #    return self.xbmcplugin.addDirectoryItem(handle=self.handle,
+    #                                            url=action_url,
+    #                                            listitem=list_item,
+    #                                            isFolder=is_folder)
 
     def add_movie_list_item(self, item):
         action = 'play_movie'
         if item.is_serie:
             action = 'list_seasons'
-        if len(item.players) > 1:
+        if item.players and len(item.players) > 1:
             action = 'list_movie_parts'
         params = {
             'action': action,
@@ -85,14 +83,13 @@ class Navigation(object):
             'title': item.title,
             'players': item.players
         }
-        is_folder = (action == 'play_movie')
         action_url = self.plugin_url + Navigation.encode_parameters(params)
         list_item = self.xbmcgui.ListItem(item.title)
         list_item.setThumbnailImage(item.poster_url)
         return self.xbmcplugin.addDirectoryItem(handle=self.handle,
                                                 url=action_url,
                                                 listitem=list_item,
-                                                isFolder=is_folder)
+                                                isFolder=True)
 
     def add_season_list_item(self, title, serie_id, season_index, season_number):
         params = {
@@ -152,19 +149,15 @@ class Navigation(object):
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_movie(self, title, players_data):
-        players = json.loads(players_data)
-        #if len(players) > 1:
-        #    return self.list_movie_parts(title, players)
-
-        streams = dreamfilm.streams_from_player_url(players[0]['url'])
-        if len(streams) == 0:
+        try:
+            players = json.loads(players_data)
+            streams = dreamfilm.streams_from_player_url(players[0]['url'])
+            return self.select_stream(title, streams)
+        except:
             dialog = self.xbmcgui.Dialog()
-            return dialog.ok("Error", "No stream found")
-
-        return self.select_stream(title, streams)
+            dialog.ok("Error", "Failed to open stream")
 
     def select_stream(self, title, streams):
-        #stream_urls = self.dreamfilm.streams_from_player_url(player_url)
 
         # Ask user which stream to use
         url = self.quality_select_dialog(streams)
@@ -196,18 +189,23 @@ class Navigation(object):
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def play_movie_part(self, title, player_url):
-        print player_url
-        streams = dreamfilm.streams_from_player_url(player_url)
-        return self.select_stream(title, streams)
+        try:
+            streams = dreamfilm.streams_from_player_url(player_url)
+            return self.select_stream(title, streams)
+        except:
+            dialog = self.xbmcgui.Dialog()
+            dialog.ok("Error", "Failed to open stream: %s" % player_url)
 
     def play_episode(self, title, season_number, episode_number, url):
-        streams = dreamfilm.streams_from_player_url(url)
-        if len(streams) == 0:
-            dialog = self.xbmcgui.Dialog()
-            return dialog.ok("Error", "No stream found")
+        try:
+            streams = dreamfilm.streams_from_player_url(url)
 
-        name = '%s S%sE%s' % (title, season_number, episode_number)
-        return self.select_stream(name, streams)
+            name = '%s S%sE%s' % (title, season_number, episode_number)
+            return self.select_stream(name, streams)
+        except:
+            dialog = self.xbmcgui.Dialog()
+            dialog.ok("Error", "Failed to open stream: %s" % url)
+
 
     def list_seasons(self, serie_id, title):
         seasons = dreamfilm.list_seasons(serie_id)

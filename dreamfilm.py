@@ -66,7 +66,6 @@ def list_latest_added(page=0):
 def list_hd_movies(page=0):
     offset = page * ITEMS_PER_PAGE
     url = API_BASE_URL + ('?type=list&hd=1&offset=%d&limit=%d&sort=views&climb=1' % (offset, ITEMS_PER_PAGE))
-    print url
     api_response  = _api_request(url)
     return _apiresponse_to_items(api_response)
 
@@ -135,4 +134,5 @@ def _strip_bom(string, bom=BOM_UTF8):
 
 def _fetch_html(url):
     response = urllib2.urlopen(url)
-    return response.read()
+    html = response.read()
+    return html
