@@ -15,7 +15,8 @@ GENRES = ['Action', 'Anime', 'Animerat', 'Äventyr', 'Biografi', 'Dokumentär', 
 
 
 def search(q, page=0):
-    url = _search_url(q, page)
+    url = _search_url(urllib.quote(q), page)
+    print url
     api_response = _api_request(url)
     return _apiresponse_to_items(api_response)
 
@@ -65,7 +66,7 @@ def list_latest_added(page=0):
 
 def list_hd_movies(page=0):
     offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&hd=1&offset=%d&limit=%d&sort=views&climb=1' % (offset, ITEMS_PER_PAGE))
+    url = API_BASE_URL + ('?type=list&serie=0&hd=1&offset=%d&limit=%d&sort=views&climb=1' % (offset, ITEMS_PER_PAGE))
     api_response  = _api_request(url)
     return _apiresponse_to_items(api_response)
 

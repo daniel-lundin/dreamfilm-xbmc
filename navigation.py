@@ -131,7 +131,7 @@ class Navigation(object):
         self.add_menu_item('Latest uploaded', 'latest_uploaded')
         self.add_menu_item('Browse series', 'series')
         self.add_menu_item('Browse movies', 'movies')
-        #self.add_menu_item('HD 720p', 'hd')
+        self.add_menu_item('HD-only', 'hd')
         #self.add_menu_item('Genres', 'genres')
         return self.xbmcplugin.endOfDirectory(self.handle)
 
@@ -254,7 +254,7 @@ class Navigation(object):
         self.add_menu_item('Next', 'latest_uploaded', page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_hd(self, page):
+    def list_hd_movies(self, page):
         items = dreamfilm.list_hd_movies(page)
         for item in items:
             self.add_movie_list_item(item)
@@ -305,7 +305,7 @@ class Navigation(object):
             if action == 'movies':
                 return self.list_movies(page)
             if action == 'hd':
-                return self.list_hd(page)
+                return self.list_hd_movies(page)
             if action == 'genres':
                 return self.list_genres(page)
             if action == 'list_genre':
