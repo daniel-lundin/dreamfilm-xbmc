@@ -14,62 +14,66 @@ ITEMS_PER_PAGE = 25
 GENRES = ['Action', 'Anime', 'Animerat', 'Äventyr', 'Biografi', 'Dokumentär', 'Drama', 'Familj', 'Fantasy', 'Komedi', 'Krig', 'Historia', 'Kriminal', 'Musik', 'Musikal', 'Mysterium', 'Reality', 'Romantik', 'Sci-Fi', 'Skräck', 'Sport', 'Svenskt', 'Thriller', 'Western'] 
 
 
-def search(q, page=0):
-    url = _search_url(urllib.quote(q), page)
-    print url
+def _api_url(type='list', page=0, q=None,
+              serie=None, id=None, hd=False, sort=None, climb=None):
+    params = []
+    params.append(('type','list'))
+    params.append(('offset', page * ITEMS_PER_PAGE))
+    params.append(('limit', 25))
+    if q:
+        params.append(('q', urllib.quote(q)))
+    if serie:
+        params.append(('serie', serie))
+    if hd:
+        params.append(('hd', '1'))
+    if sort:
+        params.append(('sort', sort))
+    if climb:
+        params.append(('climb', climb))
+    if id:
+        params.append(('id', id))
+    return API_BASE_URL + "?" +  "&".join(("%s=%s" % (str(a), str(b)) for a,b in params))
+
+def _paged_api_url(**kwargs):
+    def wrapped(page):
+        return _api_url(page=page, **kwargs)
+    return wrapped
+
+POPULAR_MOVIES_LISTING = 1
+POPULAR_SERIES_LISTING = 2
+LATEST_UPLOADED_LISTING = 3
+BROWSE_MOVIES_LISTING = 4
+BROWSE_SERIES_LISTING = 5
+HD_ONLY_LISTING = 6
+
+LISTING_NAMES = [
+    (POPULAR_MOVIES_LISTING, "Popular movies"),
+    (POPULAR_SERIES_LISTING, "Popular series"),
+    (LATEST_UPLOADED_LISTING, "Latest uploaded"),
+    (BROWSE_SERIES_LISTING, "Browse series"),
+    (BROWSE_MOVIES_LISTING, "Browse movies"),
+    (HD_ONLY_LISTING, "HD-only")
+]
+
+PAGED_LISTING_URLS = {
+    POPULAR_MOVIES_LISTING: _paged_api_url(type='list', serie='0', sort='views', climb='0'),
+    POPULAR_SERIES_LISTING: _paged_api_url(type='list', serie='1', sort='views', climb='0'),
+    BROWSE_MOVIES_LISTING: _paged_api_url(type='list', serie='0', sort='alpha', climb='1'),
+    BROWSE_SERIES_LISTING: _paged_api_url(type='list', serie='1', sort='alpha', climb='1'),
+    LATEST_UPLOADED_LISTING: _paged_api_url(type='list', sort='time', climb='1'),
+    HD_ONLY_LISTING: _paged_api_url(type='list', serie='0', hd=True, sort='views', climb='1'),
+}
+
+def listing(listing_type, page=0):
+    url = PAGED_LISTING_URLS[listing_type](page)
     api_response = _api_request(url)
     return _apiresponse_to_items(api_response)
 
-def list_movies(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=0&offset=0&limit=%d&sort=alpha&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
+
+def search(q, page=0):
+    url = _search_url(urllib.quote(q), page)
+    api_response = _api_request(url)
     return _apiresponse_to_items(api_response)
-
-def list_popular_movies(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=0&offset=%d&limit=%d&sort=views&climb=0' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-def list_popular_series(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=1&offset=%d&limit=%d&sort=views&climb=0' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-
-def list_series_alphanumeric(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=1&offset=%d&limit=%d&sort=alpha&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-def list_series_alphanumeric(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=1&offset=%d&limit=%d&sort=alpha&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-def list_movies_alphanumeric(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=0&offset=%d&limit=%d&sort=alpha&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-def list_latest_added(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&offset=%d&limit=%d&sort=time&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
-
-def list_hd_movies(page=0):
-    offset = page * ITEMS_PER_PAGE
-    url = API_BASE_URL + ('?type=list&serie=0&hd=1&offset=%d&limit=%d&sort=views&climb=1' % (offset, ITEMS_PER_PAGE))
-    api_response  = _api_request(url)
-    return _apiresponse_to_items(api_response)
-
 
 def list_seasons(serie_id):
     url = API_BASE_URL + ('?type=episodes&id=%s' % serie_id)

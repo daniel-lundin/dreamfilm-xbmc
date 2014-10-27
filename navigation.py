@@ -40,6 +40,19 @@ class Navigation(object):
             result[key] = value
         return result
 
+    def add_listing_menu_item(self, caption, listing_type, page=0):
+        params = {'action': 'listing', 'type': listing_type, 'page': page}
+        url = self.plugin_url + Navigation.encode_parameters(params)
+        self.xbmc.log('url: ' + url, self.xbmc.LOGERROR)
+
+        list_item = self.xbmcgui.ListItem(caption)
+        list_item.setInfo(type="Video", infoLabels={
+            "Title": caption,
+        })
+        return self.xbmcplugin.addDirectoryItem(handle=self.handle, url=url,
+                                                listitem=list_item,
+                                                isFolder=True)
+
     def add_menu_item(self, caption, action, page=0, search=None):
         params = {'action': action, 'page': page}
         if search:
@@ -54,22 +67,6 @@ class Navigation(object):
         return self.xbmcplugin.addDirectoryItem(handle=self.handle, url=url,
                                                 listitem=list_item,
                                                 isFolder=True)
-
-    #def add_genre_list_item(self, caption, url, page=None):
-    #    params = {
-    #        'action': 'list_genre',
-    #        'title': caption,
-    #        'genre_url': url,
-    #    }
-    #    if page:
-    #        params['page'] = page
-    #    is_folder = True
-    #    action_url = self.plugin_url + Navigation.encode_parameters(params)
-    #    list_item = self.xbmcgui.ListItem(caption)
-    #    return self.xbmcplugin.addDirectoryItem(handle=self.handle,
-    #                                            url=action_url,
-    #                                            listitem=list_item,
-    #                                            isFolder=is_folder)
 
     def add_movie_list_item(self, item):
         action = 'play_movie'
@@ -126,12 +123,15 @@ class Navigation(object):
 
     def build_main_menu(self):
         self.add_menu_item('Search', 'search')
-        self.add_menu_item('Popular movies', 'popular_movies')
-        self.add_menu_item('Popular series', 'popular_series')
-        self.add_menu_item('Latest uploaded', 'latest_uploaded')
-        self.add_menu_item('Browse series', 'series')
-        self.add_menu_item('Browse movies', 'movies')
-        self.add_menu_item('HD-only', 'hd')
+        for listing_type, name in dreamfilm.LISTING_NAMES:
+            self.add_listing_menu_item(name, listing_type, page=0)
+
+        #self.add_menu_item('Popular movies', 'popular_movies')
+        #self.add_menu_item('Popular series', 'popular_series')
+        #self.add_menu_item('Latest uploaded', 'latest_uploaded')
+        #self.add_menu_item('Browse series', 'series')
+        #self.add_menu_item('Browse movies', 'movies')
+        #self.add_menu_item('HD-only', 'hd')
         #self.add_menu_item('Genres', 'genres')
         return self.xbmcplugin.endOfDirectory(self.handle)
 
@@ -219,60 +219,12 @@ class Navigation(object):
             self.add_episode_list_item(title, episode)
         return self.xbmcplugin.endOfDirectory(self.handle)
 
-    def list_popular_movies(self, page):
-        items = dreamfilm.list_popular_movies(page)
+    def listing(self, type, page=0):
+        items = dreamfilm.listing(type, page)
         for item in items:
             self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'popular_movies', page=page + 1)
+        self.add_listing_menu_item("Next", type, page=page + 1)
         return self.xbmcplugin.endOfDirectory(self.handle)
-
-    def list_popular_series(self, page):
-        items = dreamfilm.list_popular_series(page)
-        for item in items:
-            self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'popular_series', page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
-
-    def list_series(self, page):
-        items = dreamfilm.list_series_alphanumeric(page)
-        for item in items:
-            self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'series', page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
-
-    def list_movies(self, page):
-        items = dreamfilm.list_movies_alphanumeric(page)
-        for item in items:
-            self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'movies', page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
-
-    def list_latest_uploaded(self, page):
-        items = dreamfilm.list_latest_added(page)
-        for item in items:
-            self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'latest_uploaded', page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
-
-    def list_hd_movies(self, page):
-        items = dreamfilm.list_hd_movies(page)
-        for item in items:
-            self.add_movie_list_item(item)
-        self.add_menu_item('Next', 'hd', page=page + 1)
-        return self.xbmcplugin.endOfDirectory(self.handle)
-
-    #def list_genres(self, page):
-    #    for name, url in self.dreamfilm.list_genres():
-    #        self.add_genre_list_item(name, url)
-    #    return self.xbmcplugin.endOfDirectory(self.handle)
-
-    #def list_genre(self, genre_url, page):
-    #    more_pages, matches = self.dreamfilm.list_genre(genre_url, page)
-    #    for name, url, thumb_url in matches:
-    #        self.add_movie_list_item(name, url, thumb_url)
-    #    if more_pages:
-    #        self.add_genre_list_item('Next', genre_url, page=page + 1)
-    #    return self.xbmcplugin.endOfDirectory(self.handle)
 
     def quality_select_dialog(self, stream_urls):
         qualities = [s[0] for s in stream_urls]
@@ -294,23 +246,8 @@ class Navigation(object):
             if action == 'search':
                 return self.search(self.params.get('search', None), page)
 
-            if action == 'popular_movies':
-                return self.list_popular_movies(page)
-            if action == 'popular_series':
-                return self.list_popular_series(page)
-            if action == 'latest_uploaded':
-                return self.list_latest_uploaded(page)
-            if action == 'series':
-                return self.list_series(page)
-            if action == 'movies':
-                return self.list_movies(page)
-            if action == 'hd':
-                return self.list_hd_movies(page)
-            if action == 'genres':
-                return self.list_genres(page)
-            if action == 'list_genre':
-                return self.list_genre(self.params['genre_url'],
-                                       page)
+            if action == 'listing':
+                return self.listing(int(self.params['type']), int(self.params['page']))
             if action == 'play_movie':
                 return self.play_movie(self.params['title'], self.params['players'])
             if action == 'list_movie_parts':

@@ -46,6 +46,18 @@ class APITests(unittest.TestCase):
             seasons = dreamfilm._series_to_list(api_resonse, 123)
             self.assertEqual(len(seasons), 7)
 
+    def test_api_url_generation(self):
+        expected = 'http://dreamfilm.se/API/api.php?type=list&offset=0&limit=25&q=Bad%20santa&sort=alpha'
+        url = dreamfilm._api_url(type='list', q="Bad santa", sort="alpha")
+        self.assertEqual(expected, url)
+
+    def test_paged_api_url_generation(self):
+        pager = dreamfilm._paged_api_url(type='list', q="Bad santa", sort="alpha")
+        page1 = 'http://dreamfilm.se/API/api.php?type=list&offset=25&limit=25&q=Bad%20santa&sort=alpha'
+        page2 = 'http://dreamfilm.se/API/api.php?type=list&offset=50&limit=25&q=Bad%20santa&sort=alpha'
+        self.assertEqual(pager(1), page1)
+        self.assertEqual(pager(2), page2)
+
 
 if __name__ == '__main__':
     unittest.main()
