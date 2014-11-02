@@ -1,4 +1,6 @@
+import urllib
 import urllib2
+import json
 
 def vk_streams(html):
     """ Finds streams for vk.com player """
@@ -49,3 +51,34 @@ def leanback_streams(html):
     start = html.find(SOURCE_START) + len(SOURCE_START)
     end = html.find('"', start + 1)
     return [('', html[start:end])]
+
+
+def mailru_streams(url):
+    req = urllib2.Request(url)
+
+    resp = urllib2.urlopen(req)
+    html = resp.read()
+    cookie_string = resp.headers.getheader('Set-Cookie').split(';')[0]
+
+    print resp.headers.getheader('Set-Cookie')
+    headers = {
+        'Cookie': cookie_string
+    }
+
+    video_params_start = html.find('videoParams');
+    video_params_end = html.find('}', video_params_start)
+    json_string = html[video_params_start + 14:video_params_end + 1]
+
+    video_params = json.loads(json_string)
+    
+    metadata_response = urllib2.urlopen(video_params['metadataUrl'])
+    metadata = json.loads(metadata_response.read())
+
+    streams = metadata['videos']
+    # XBMC player needs cookies to play these
+    for key in streams:
+        streams[key] += '|Cookie=' + urllib.quote(cookie_string)
+
+    return streams.items()
+
+mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')

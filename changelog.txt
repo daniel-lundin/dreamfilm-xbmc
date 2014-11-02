@@ -53,3 +53,7 @@ Fix for new video hosting
 version 0.0.14
 =============
 Working version with the new API. Still missing some resolvers.
+
+version 0.0.15
+=============
+Added mail.ru-resolver and updated logo

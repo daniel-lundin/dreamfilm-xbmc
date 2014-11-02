@@ -82,6 +82,9 @@ def list_seasons(serie_id):
 
 
 def streams_from_player_url(url):
+    if 'mail.ru' in url:
+        return resolvers.mailru_streams(url)
+
     html = _fetch_html(url)
     if 'vk.com' in url:
         return resolvers.vk_streams(html)
