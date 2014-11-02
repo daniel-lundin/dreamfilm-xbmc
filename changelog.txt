@@ -54,6 +54,6 @@ version 0.0.14
 =============
 Working version with the new API. Still missing some resolvers.
 
-version 0.0.15
+version 0.1.0
 =============
 Added mail.ru-resolver and updated logo
