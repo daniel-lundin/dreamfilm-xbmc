@@ -80,5 +80,3 @@ def mailru_streams(url):
         streams[key] += '|Cookie=' + urllib.quote(cookie_string)
 
     return streams.items()
-
-mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')
