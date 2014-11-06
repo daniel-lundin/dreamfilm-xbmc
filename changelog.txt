@@ -61,3 +61,7 @@ Added mail.ru-resolver and updated logo
 version 0.1.1
 =============
 Removed debug code that caused crash
+
+version 0.1.2
+=============
+Update for new mail.ru

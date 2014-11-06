@@ -65,18 +65,18 @@ def mailru_streams(url):
         'Cookie': cookie_string
     }
 
-    video_params_start = html.find('videoParams');
-    video_params_end = html.find('}', video_params_start)
-    json_string = html[video_params_start + 14:video_params_end + 1]
+    metadata_url_start = html.find('metadataUrl') + len('metadataUrl":"')
+    metadata_url_end = html.find('"', metadata_url_start)
+    metadata_url = html[metadata_url_start:metadata_url_end]
 
-    video_params = json.loads(json_string)
-    
-    metadata_response = urllib2.urlopen(video_params['metadataUrl'])
-    metadata = json.loads(metadata_response.read())
+    metadata_response =  urllib2.urlopen(metadata_url)
+    metadata = json.loads(metadata_response.read()) 
 
-    streams = metadata['videos']
     # XBMC player needs cookies to play these
-    for key in streams:
-        streams[key] += '|Cookie=' + urllib.quote(cookie_string)
+    xbmc_cookies = '|Cookie=' + urllib.quote(cookie_string)
+    streams = [(v['key'], v['url'] + xbmc_cookies) for v in metadata['videos']]
 
-    return streams.items()
+    return streams
+
+if __name__ == '__main__':
+    print mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')
