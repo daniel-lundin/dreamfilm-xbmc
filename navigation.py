@@ -121,18 +121,28 @@ class Navigation(object):
                                                 listitem=list_item,
                                                 isFolder=False)
 
+    def add_genre_item(self, genre, index, serie):
+        params = {
+            'action': 'list_genre',
+            'genre_index': index,
+            'serie': serie,
+        }
+        action_url = self.plugin_url + Navigation.encode_parameters(params)
+        list_item = self.xbmcgui.ListItem(genre)
+        list_item.setInfo(type='Video', infoLabels={'Title': genre})
+        return self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                                url=action_url,
+                                                listitem=list_item,
+                                                isFolder=True)
+
     def build_main_menu(self):
         self.add_menu_item('Search', 'search')
         for listing_type, name in dreamfilm.LISTING_NAMES:
             self.add_listing_menu_item(name, listing_type, page=0)
 
-        #self.add_menu_item('Popular movies', 'popular_movies')
-        #self.add_menu_item('Popular series', 'popular_series')
-        #self.add_menu_item('Latest uploaded', 'latest_uploaded')
-        #self.add_menu_item('Browse series', 'series')
-        #self.add_menu_item('Browse movies', 'movies')
-        #self.add_menu_item('HD-only', 'hd')
-        #self.add_menu_item('Genres', 'genres')
+        self.add_menu_item("Movies by genre", "list_movie_genres")
+        self.add_menu_item("Series by genre", "list_serie_genres")
+
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def search(self, text, page):
@@ -153,7 +163,8 @@ class Navigation(object):
             players = json.loads(players_data)
             streams = dreamfilm.streams_from_player_url(players[0]['url'])
             return self.select_stream(title, streams)
-        except:
+        except Exception, e:
+            print str(e)
             dialog = self.xbmcgui.Dialog()
             dialog.ok("Error", "Failed to open stream")
 
@@ -192,8 +203,10 @@ class Navigation(object):
         try:
             streams = dreamfilm.streams_from_player_url(player_url)
             return self.select_stream(title, streams)
-        except:
+        except Exception, e:
             dialog = self.xbmcgui.Dialog()
+            print 'EEEE'
+            print str(e)
             dialog.ok("Error", "Failed to open stream: %s" % player_url)
 
     def play_episode(self, title, season_number, episode_number, url):
@@ -202,9 +215,11 @@ class Navigation(object):
 
             name = '%s S%sE%s' % (title, season_number, episode_number)
             return self.select_stream(name, streams)
-        except:
+        except Exception, e:
+            print 'EEEE'
+            print str(e)
             dialog = self.xbmcgui.Dialog()
-            dialog.ok("Error", "Failed to open stream: %s" % url)
+            return dialog.ok("Error", "Failed to open stream: %s" % url)
 
 
     def list_seasons(self, serie_id, title):
@@ -217,6 +232,40 @@ class Navigation(object):
         seasons = dreamfilm.list_seasons(serie_id)
         for episode in seasons[season_index].episodes:
             self.add_episode_list_item(title, episode)
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_movie_genres(self):
+        for idx, genre in enumerate(dreamfilm.GENRES):
+            self.add_genre_item(genre, idx, serie=0)
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_serie_genres(self):
+        for idx, genre in enumerate(dreamfilm.GENRES):
+            self.add_genre_item(genre, idx, serie=1)
+        return self.xbmcplugin.endOfDirectory(self.handle)
+
+    def list_genre(self, serie, genre_index, page=0):
+        genre = dreamfilm.GENRES[genre_index]
+        items = dreamfilm.list_genre(genre, serie)
+        for item in items:
+            self.add_movie_list_item(item)
+
+        # TODO: Refactor add_menu_item structure
+        params = {
+            'action': 'list_genre',
+            'genre_index': genre_index,
+            'serie': serie,
+            'page': page + 1
+        }
+        name = 'Next'
+        action_url = self.plugin_url + Navigation.encode_parameters(params)
+        list_item = self.xbmcgui.ListItem(name)
+        list_item.setInfo(type='Video', infoLabels={'Title': name})
+        self.xbmcplugin.addDirectoryItem(handle=self.handle,
+                                         url=action_url,
+                                         listitem=list_item,
+                                         isFolder=False)
+
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def listing(self, type, page=0):
@@ -259,6 +308,14 @@ class Navigation(object):
                 return self.list_episodes(self.params['title'],
                                           int(self.params['serie_id']),
                                           int(self.params['season_index']))
+            if action == 'list_movie_genres':
+                return self.list_movie_genres()
+            if action == 'list_serie_genres':
+                return self.list_serie_genres()
+            if action == 'list_genre':
+                return self.list_genre(int(self.params['serie']),
+                                       int(self.params['genre_index']),
+                                       int(self.params.get('page', 0)))
             if action == 'play_episode':
                 return self.play_episode(self.params['title'],
                                          int(self.params['season_number']),

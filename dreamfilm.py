@@ -11,11 +11,10 @@ from models import Item, Episode, Season
 API_BASE_URL = 'http://dreamfilm.se/API/api.php'
 ITEMS_PER_PAGE = 25
 
-GENRES = ['Action', 'Anime', 'Animerat', 'Äventyr', 'Biografi', 'Dokumentär', 'Drama', 'Familj', 'Fantasy', 'Komedi', 'Krig', 'Historia', 'Kriminal', 'Musik', 'Musikal', 'Mysterium', 'Reality', 'Romantik', 'Sci-Fi', 'Skräck', 'Sport', 'Svenskt', 'Thriller', 'Western'] 
-
+GENRES = ["Action", "Anime", "Animation", "Adventure", "Biography", "Documentary", "Drama", "Family", "Fantasy", "Christmas", "Comedy", "War", "History", "Crime", "Music", "Musical", "Mystery", "Reality", "Romance", "Sci-Fi", "Horror", "Sport", "Swedish", "Thriller", "Western"]
 
 def _api_url(type='list', page=0, q=None,
-              serie=None, id=None, hd=False, sort=None, climb=None):
+              serie=None, id=None, hd=False, genres=None, sort=None, climb=None):
     params = []
     params.append(('type','list'))
     params.append(('offset', page * ITEMS_PER_PAGE))
@@ -30,6 +29,8 @@ def _api_url(type='list', page=0, q=None,
         params.append(('sort', sort))
     if climb:
         params.append(('climb', climb))
+    if genres:
+        params.append(('genres', genres))
     if id:
         params.append(('id', id))
     return API_BASE_URL + "?" +  "&".join(("%s=%s" % (str(a), str(b)) for a,b in params))
@@ -80,6 +81,11 @@ def list_seasons(serie_id):
     api_response  = _api_request(url)
     return _series_to_list(api_response, serie_id)
 
+def list_genre(genre, serie):
+    url = _api_url(genres=genre, serie=serie, sort='alpha', climb='1')
+    api_response  = _api_request(url)
+    return _apiresponse_to_items(api_response)
+
 
 def streams_from_player_url(url):
     if 'mail.ru' in url:
@@ -92,7 +98,7 @@ def streams_from_player_url(url):
         return resolvers.google_streams(html)
     if 'dreamfilm.se' in url:
         return resolvers.leanback_streams(html)
-    return []
+    return [('video', url)]
 
 
 def _search_url(q, page=0):
@@ -144,3 +150,13 @@ def _fetch_html(url):
     response = urllib2.urlopen(url)
     html = response.read()
     return html
+
+def _head_request(url):
+    request = urllib2.Request(url)
+    request.get_method = lambda : 'HEAD'
+
+    response = urllib2.urlopen(request)
+    print response.info()
+
+if __name__ == '__main__':
+    print _head_request('http://dfserver1.com/dfhd1/Arrow.S01E01.SWESUB.HDTV.XviD-Fuvisa.mp4')

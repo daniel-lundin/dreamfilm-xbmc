@@ -32,9 +32,6 @@ def google_streams(html):
 
     d = flashvars.decode('unicode-escape')
     decoded = urllib2.unquote(urllib2.unquote(d))
-    #print decoded
-
-    #print decoded.split('url=')
 
     urls = [l for l in decoded.split('url=') if 'mp4' in l and l.startswith('https')]
     streams = []
