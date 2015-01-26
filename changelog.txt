@@ -69,3 +69,7 @@ Update for new mail.ru
 version 0.1.3
 =============
 Add genre listing for movies and series
+
+version 0.1.4
+=============
+Update url and set proper user-agent

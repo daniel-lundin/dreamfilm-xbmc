@@ -8,7 +8,7 @@ from codecs import BOM_UTF8
 import resolvers
 from models import Item, Episode, Season
 
-API_BASE_URL = 'http://dreamfilm.se/API/api.php'
+API_BASE_URL = 'http://www.dreamfilmhd.com/API/api.php'
 ITEMS_PER_PAGE = 25
 
 GENRES = ["Action", "Anime", "Animation", "Adventure", "Biography", "Documentary", "Drama", "Family", "Fantasy", "Christmas", "Comedy", "War", "History", "Crime", "Music", "Musical", "Mystery", "Reality", "Romance", "Sci-Fi", "Horror", "Sport", "Swedish", "Thriller", "Western"]
@@ -127,7 +127,9 @@ def _make_season(serie_id, episodes):
     return Season(serie_id, episodes[0].season, episodes)
 
 def _api_request(url):
-    response = urllib2.urlopen(url)
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    response = opener.open(url)
     return response.read()
 
 def _apiresponse_to_items(json_data):
@@ -157,6 +159,3 @@ def _head_request(url):
 
     response = urllib2.urlopen(request)
     print response.info()
-
-if __name__ == '__main__':
-    print _head_request('http://dfserver1.com/dfhd1/Arrow.S01E01.SWESUB.HDTV.XviD-Fuvisa.mp4')
