@@ -126,7 +126,7 @@ def _series_to_list(json_data, serie_id):
 
 
 def _make_season(serie_id, episodes):
-    return Season(serie_id, episodes[0].season, episodes)
+    return Season(serie_id, episodes[0].season, sorted(episodes, key=lambda x: x.episode))
 
 def _api_request(url):
     print(url)
