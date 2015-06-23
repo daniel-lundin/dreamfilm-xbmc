@@ -2,6 +2,8 @@ import urllib
 import urllib2
 import json
 import HTMLParser
+import re
+
 
 def vk_streams(html):
     """ Finds streams for vk.com player """
@@ -102,6 +104,26 @@ def vkpass_streams(html):
     vsource_end = html.index("\"", vsource_start + 1)
 
     return [('stream', html[vsource_start : vsource_end])]
+
+
+def picasa_streams(url):
+    req = urllib2.Request(url)
+    response = urllib2.urlopen(req)
+    source = response.read()
+    response.close()
+
+    result = re.search('{"content":(\[{"url":.*?\])', source)
+    links = json.loads(result.groups(1)[0])
+
+    sources = []
+    for l in links:
+        if l["type"].startswith("video"):
+            name = "{height}p".format(height=l["height"])
+            link = l["url"]
+            item = (name, link)
+            sources.append(item)
+
+    return sources
 
 
 if __name__ == '__main__':
