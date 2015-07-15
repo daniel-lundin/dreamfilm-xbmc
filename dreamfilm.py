@@ -81,8 +81,8 @@ def list_seasons(serie_id):
     api_response  = _api_request(url)
     return _series_to_list(api_response, serie_id)
 
-def list_genre(genre, serie):
-    url = _api_url(genres=genre, serie=serie, sort='alpha', climb='1')
+def list_genre(genre, serie, page):
+    url = _api_url(genres=genre, page=page, serie=serie, sort='alpha', climb='1')
     api_response  = _api_request(url)
     return _apiresponse_to_items(api_response)
 

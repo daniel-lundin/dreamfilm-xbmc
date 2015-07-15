@@ -246,7 +246,7 @@ class Navigation(object):
 
     def list_genre(self, serie, genre_index, page=0):
         genre = dreamfilm.GENRES[genre_index]
-        items = dreamfilm.list_genre(genre, serie)
+        items = dreamfilm.list_genre(genre, serie, page)
         for item in items:
             self.add_movie_list_item(item)
 
@@ -264,7 +264,7 @@ class Navigation(object):
         self.xbmcplugin.addDirectoryItem(handle=self.handle,
                                          url=action_url,
                                          listitem=list_item,
-                                         isFolder=False)
+                                         isFolder=True)
 
         return self.xbmcplugin.endOfDirectory(self.handle)
 
