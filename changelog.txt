@@ -73,3 +73,14 @@ Add genre listing for movies and series
 version 0.1.4
 =============
 Update url and set proper user-agent
+
+version 0.1.5
+=============
+Update url (again) and added vkpass resolver
+
+version 0.1.6
+=============
+Fix next page bug
+
+
+
