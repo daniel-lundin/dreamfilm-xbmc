@@ -1,6 +1,7 @@
 import urllib
 import urllib2
 import json
+import HTMLParser
 
 def vk_streams(html):
     """ Finds streams for vk.com player """
@@ -75,5 +76,37 @@ def mailru_streams(url):
 
     return streams
 
+def okru_streams(url):
+    response = urllib2.urlopen(url)
+    html = response.read()
+
+    flashvars_start = html.index('flashvars') + 23
+    flashvars_end = html.index('"', flashvars_start + 30)
+    flashvars_value = html[flashvars_start : flashvars_end]
+    print '---------'
+    print flashvars_value
+    print '---------'
+    decoded = urllib2.urlparse.parse_qs(flashvars_value)
+
+    h = HTMLParser.HTMLParser()
+    print '---------'
+    print h.unescape(decoded)
+    print '---------'
+    metadata = json.loads(decoded['metadata'][0])
+
+    return metadata
+
+def vkpass_streams(html):
+    identifier = "vsource=[{file:"
+    vsource_start = html.index(identifier) + len(identifier) + 1
+    vsource_end = html.index("\"", vsource_start + 1)
+
+    return [('stream', html[vsource_start : vsource_end])]
+
+
 if __name__ == '__main__':
-    print mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')
+    #print mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')
+    response = urllib2.urlopen("http://vkpass.com/token/bdrxwnlzfjpq/m123m/film/po-17915/watching.html?cap&c1_file=http://dreamvtt.com/srt/1/Poker.Night.2014.720p.BluRay.x264.YIFY.vtt&c1_label=English")
+    html = response.read()
+    print vkpass_streams(html)
+    #print okru_streams('http://www.ok.ru/video/30025452153')

@@ -8,7 +8,7 @@ from codecs import BOM_UTF8
 import resolvers
 from models import Item, Episode, Season
 
-API_BASE_URL = 'http://www.dreamfilmhd.com/API/api.php'
+API_BASE_URL = 'http://www.dreamfilmhd.org/API/api.php'
 ITEMS_PER_PAGE = 25
 
 GENRES = ["Action", "Anime", "Animation", "Adventure", "Biography", "Documentary", "Drama", "Family", "Fantasy", "Christmas", "Comedy", "War", "History", "Crime", "Music", "Musical", "Mystery", "Reality", "Romance", "Sci-Fi", "Horror", "Sport", "Swedish", "Thriller", "Western"]
@@ -61,7 +61,7 @@ PAGED_LISTING_URLS = {
     POPULAR_SERIES_LISTING: _paged_api_url(type='list', serie='1', sort='views', climb='0'),
     BROWSE_MOVIES_LISTING: _paged_api_url(type='list', serie='0', sort='alpha', climb='1'),
     BROWSE_SERIES_LISTING: _paged_api_url(type='list', serie='1', sort='alpha', climb='1'),
-    LATEST_UPLOADED_LISTING: _paged_api_url(type='list', sort='time', climb='1'),
+    LATEST_UPLOADED_LISTING: _paged_api_url(type='list', sort='time', climb='0'),
     HD_ONLY_LISTING: _paged_api_url(type='list', serie='0', hd=True, sort='views', climb='1'),
 }
 
@@ -98,6 +98,8 @@ def streams_from_player_url(url):
         return resolvers.google_streams(html)
     if 'dreamfilm.se' in url:
         return resolvers.leanback_streams(html)
+    if 'vkpass.com' in url:
+        return resolvers.vkpass_streams(html)
     return [('video', url)]
 
 
@@ -127,6 +129,7 @@ def _make_season(serie_id, episodes):
     return Season(serie_id, episodes[0].season, episodes)
 
 def _api_request(url):
+    print(url)
     opener = urllib2.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     response = opener.open(url)
@@ -159,3 +162,6 @@ def _head_request(url):
 
     response = urllib2.urlopen(request)
     print response.info()
+
+if __name__ == '__main__':
+    print search('abba');
