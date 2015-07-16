@@ -1,6 +1,7 @@
 dreamfilm-xbmc
 ==============
 Unofficial dreamfilmhd.org plugin for XBMC. Not yet published to a repository.
+[![Build Status](https://travis-ci.org/daniel-lundin/dreamfilm-xbmc.svg?branch=v0.1.7)](https://travis-ci.org/daniel-lundin/dreamfilm-xbmc)
 
 Installation
 ------------
