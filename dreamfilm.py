@@ -90,6 +90,8 @@ def list_genre(genre, serie, page):
 def streams_from_player_url(url):
     if 'mail.ru' in url:
         return resolvers.mailru_streams(url)
+    if 'picasaweb.google.com' in url:
+        return resolvers.picasa_streams(url)
 
     html = _fetch_html(url)
     if 'vk.com' in url:
