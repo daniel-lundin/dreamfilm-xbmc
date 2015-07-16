@@ -131,7 +131,6 @@ def _make_season(serie_id, episodes):
     return Season(serie_id, episodes[0].season, sorted(episodes, key=lambda x: x.episode))
 
 def _api_request(url):
-    print(url)
     opener = urllib2.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     response = opener.open(url)
