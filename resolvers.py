@@ -88,16 +88,20 @@ def vkpass_streams(html):
 
 
 def picasa_streams(url):
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
-    source = response.read()
+    m = re.search('picasaweb.google.com/(?P<user>[^/]+)/(?P<album>[^?]+)\?authkey=(?P<authkey>[^#]+)#?(?P<photoid>[^?]+)?', url)
+    json_url = 'https://picasaweb.google.com/data/entry/base'
+    json_url += '/user/' + m.group('user')
+    json_url += '/album/' + m.group('album')
+    json_url += '/photoid/' + m.group('photoid')
+    json_url += '?alt=json'
+    json_url += '&authkey=' + m.group('authkey')
+
+    response = urllib2.urlopen(json_url)
+    data = json.load(response)
     response.close()
 
-    result = re.search('{"content":(\[{"url":.*?\])', source)
-    links = json.loads(result.groups(1)[0])
-
     sources = []
-    for l in links:
+    for l in data['entry']['media$group']['media$content']:
         if l["type"].startswith("video"):
             name = "{height}p".format(height=l["height"])
             link = l["url"]
@@ -109,7 +113,10 @@ def picasa_streams(url):
 
 if __name__ == '__main__':
     #print mailru_streams('http://videoapi.my.mail.ru/videos/embed/mail/mr.whoare/video/_myvideo/505.html')
-    response = urllib2.urlopen("http://vkpass.com/token/bdrxwnlzfjpq/m123m/film/po-17915/watching.html?cap&c1_file=http://dreamvtt.com/srt/1/Poker.Night.2014.720p.BluRay.x264.YIFY.vtt&c1_label=English")
-    html = response.read()
-    print vkpass_streams(html)
+    #response = urllib2.urlopen("http://vkpass.com/token/bdrxwnlzfjpq/m123m/film/po-17915/watching.html?cap&c1_file=http://dreamvtt.com/srt/1/Poker.Night.2014.720p.BluRay.x264.YIFY.vtt&c1_label=English")
+    #html = response.read()
+    #print vkpass_streams(html)
     #print okru_streams('http://www.ok.ru/video/30025452153')
+    #url = 'https://picasaweb.google.com/111770605384240810365/GameOfThronesS04?authkey=Gv1sRgCPLtx-O2nPmYFw#6151744529773049170'
+    url = 'https://picasaweb.google.com/105596503743456265443/Random?authkey=Gv1sRgCMaE9_Kn5b2L8QE'
+    print(picasa_streams(url))
