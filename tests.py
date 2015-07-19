@@ -30,6 +30,12 @@ class ParseTests(unittest.TestCase):
             formats = resolvers.google_streams(html)
             self.assertEqual(len(formats), 2)
 
+    def test_vk_pass_resolver(self):
+        with open('fixtures/vkpass.html') as f:
+            html = f.read()
+            formats = resolvers._vkpass_streams_from_html(html)
+            self.assertEqual(len(formats), 3)
+
 
 class APITests(unittest.TestCase):
 

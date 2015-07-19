@@ -70,7 +70,7 @@ def mailru_streams(url):
     metadata_url = html[metadata_url_start:metadata_url_end]
 
     metadata_response =  urllib2.urlopen(metadata_url)
-    metadata = json.loads(metadata_response.read()) 
+    metadata = json.loads(metadata_response.read())
 
     # XBMC player needs cookies to play these
     xbmc_cookies = '|Cookie=' + urllib.quote(cookie_string)
@@ -125,12 +125,43 @@ def okru_streams(url):
     return sources
 
 
-def vkpass_streams(html):
-    identifier = "vsource=[{file:"
-    vsource_start = html.index(identifier) + len(identifier) + 1
-    vsource_end = html.index("\"", vsource_start + 1)
+def vkpass_streams(url):
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Referer': 'http://www.dreamfilmhd.org/API/api.php'
+    }
 
-    return [('stream', html[vsource_start : vsource_end])]
+    req = urllib2.Request(url, headers=HEADERS)
+    response = urllib2.urlopen(req)
+    html = response.read()
+    response.close()
+
+    return _vkpass_streams_from_html(html)
+
+def _vkpass_streams_from_html(html):
+    identifier = "vsource=["
+    vsource_start = html.index(identifier) + len(identifier) - 1
+    vsource_end = html.index("]", vsource_start + 1) + 1
+
+    file_start = html.find('file:', vsource_start)
+    formats = []
+
+    while file_start != -1 and file_start < vsource_end:
+        quote_start = file_start + 6
+        quote_end = html.find('"', quote_start + 1)
+        url = html[quote_start : quote_end]
+
+        label_start = html.find('label:', quote_end)
+        quote_start = label_start + 7
+        quote_end = html.find('"', quote_start + 1)
+        label = html[quote_start : quote_end]
+
+        formats.append((label, url))
+        file_start = html.find('file:', quote_end)
+
+
+    return formats
 
 
 def picasa_streams(url):
