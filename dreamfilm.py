@@ -92,6 +92,8 @@ def streams_from_player_url(url):
         return resolvers.mailru_streams(url)
     if 'picasaweb.google.com' in url:
         return resolvers.picasa_streams(url)
+    if 'ok.ru' in url:
+        return resolvers.okru_streams(url)
 
     html = _fetch_html(url)
     if 'vk.com' in url:

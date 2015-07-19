@@ -79,6 +79,52 @@ def mailru_streams(url):
     return streams
 
 
+def _okru_to_res(string):
+    string = string.strip()
+    resolution = string
+    if string == 'full':
+        resolution = '1080p'
+    elif string == 'hd':
+        resolution = '720p'
+    elif string == 'sd':
+        resolution = '480p'
+    elif string == 'low':
+        resolution = '360p'
+    elif string == 'lowest':
+        resolution = '240p'
+    elif string == 'mobile':
+        resolution = '144p'
+
+    return resolution
+
+
+def okru_streams(url):
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    }
+
+    id = re.search('\d+', url).group(0)
+    json_url = 'http://ok.ru/dk?cmd=videoPlayerMetadata&mid=' + id
+
+    req = urllib2.Request(json_url, headers=HEADERS)
+    response = urllib2.urlopen(req)
+    source = response.read()
+    response.close()
+
+    json_source = json.loads(source)
+
+    sources = []
+    for source in json_source['videos']:
+        name = _okru_to_res(source['name'])
+        link = '%s|User-Agent=%s&Accept=%s'
+        link = link % (source['url'], HEADERS['User-Agent'], HEADERS['Accept'])
+        item = (name, link)
+        sources.append(item)
+
+    return sources
+
+
 def vkpass_streams(html):
     identifier = "vsource=[{file:"
     vsource_start = html.index(identifier) + len(identifier) + 1
