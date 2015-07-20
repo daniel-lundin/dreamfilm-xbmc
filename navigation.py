@@ -162,23 +162,26 @@ class Navigation(object):
         try:
             players = json.loads(players_data)
             streams = dreamfilm.streams_from_player_url(players[0]['url'])
-            return self.select_stream(title, streams)
+            subtitles = dreamfilm.subtitles_from_url(players[0]['url'])
+            return self.select_stream(title, streams, subtitles)
         except Exception, e:
             print str(e)
             dialog = self.xbmcgui.Dialog()
             dialog.ok("Error", "Failed to open stream")
 
-    def select_stream(self, title, streams):
+    def select_stream(self, title, streams, subtitles):
 
         # Ask user which stream to use
         url = self.quality_select_dialog(streams)
         if url is None:
             return
-        return self.play_stream(title, url)
+        return self.play_stream(title, url, subtitles)
 
-    def play_stream(self, title, stream):
+    def play_stream(self, title, stream, subtitles):
         li = self.xbmcgui.ListItem(label=title, path=stream)
         li.setInfo(type='Video', infoLabels={"Title": title})
+        li.setSubtitles(subtitles)
+
         return self.xbmc.Player().play(item=stream, listitem=li)
 
     def list_movie_parts(self, title, players_data):
@@ -202,7 +205,8 @@ class Navigation(object):
     def play_movie_part(self, title, player_url):
         try:
             streams = dreamfilm.streams_from_player_url(player_url)
-            return self.select_stream(title, streams)
+            subtitles = dreamfilm.subtitles_from_url(player_url)
+            return self.select_stream(title, streams, subtitles)
         except Exception, e:
             dialog = self.xbmcgui.Dialog()
             print 'EEEE'
@@ -213,8 +217,9 @@ class Navigation(object):
         try:
             streams = dreamfilm.streams_from_player_url(url)
 
+            subtitles = dreamfilm.subtitles_from_url(url)
             name = '%s S%sE%s' % (title, season_number, episode_number)
-            return self.select_stream(name, streams)
+            return self.select_stream(name, streams, subtitles)
         except Exception, e:
             print 'EEEE'
             print str(e)

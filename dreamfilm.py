@@ -107,6 +107,10 @@ def streams_from_player_url(url):
     return [('video', url)]
 
 
+def subtitles_from_url(url):
+    return re.findall('&c\d+_file=(?P<url>[^&]+)', url)
+
+
 def _search_url(q, page=0):
     offset = page * ITEMS_PER_PAGE
     return API_BASE_URL + ('?q=%s&type=list&offset=%d&limit=%d' % (q, offset, ITEMS_PER_PAGE))

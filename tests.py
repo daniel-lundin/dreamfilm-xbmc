@@ -37,6 +37,34 @@ class ParseTests(unittest.TestCase):
             self.assertEqual(len(formats), 3)
 
 
+class SubtitleTests(unittest.TestCase):
+
+    def test_empty_string_gives_no_subtitles(self):
+        answer = dreamfilm.subtitles_from_url('')
+        self.assertEqual(answer, [])
+
+    def test_single_subtitle(self):
+        url = 'http://url.com?cap&c1_file=http://sub1.vtt&c1_label=Svenska'
+        expected = ['http://sub1.vtt']
+        actual = dreamfilm.subtitles_from_url(url)
+        self.assertEqual(expected, actual)
+
+    def test_subtitle_with_high_number(self):
+        url = 'http://url.com?cap&c123_file=http://sub1.vtt&c1_label=Svenska'
+        expected = ['http://sub1.vtt']
+        actual = dreamfilm.subtitles_from_url(url)
+        self.assertEqual(expected, actual)
+
+    def test_multiple_subtitles(self):
+        url = 'http://url.com&c1_file=http://sub1.vtt&c1_label=English&c2_file=http://sub2.vtt&c2_label=Svenska&c3_file=http://sub3.vtt&c3_label=Suomi'
+        actual = dreamfilm.subtitles_from_url(url)
+        expected = []
+        expected.append('http://sub1.vtt')
+        expected.append('http://sub2.vtt')
+        expected.append('http://sub3.vtt')
+        self.assertEqual(expected, actual)
+
+
 class APITests(unittest.TestCase):
 
     def test_parse_apirespone(self):
