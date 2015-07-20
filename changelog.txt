@@ -82,5 +82,11 @@ version 0.1.6
 =============
 Fix next page bug
 
+version 0.1.8
+=============
+Added ok.ru resolver
+Add subtitles
+Fix vkpass resolver
+
 
 
