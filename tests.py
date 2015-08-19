@@ -64,7 +64,6 @@ class SubtitleTests(unittest.TestCase):
         expected.append('http://sub3.vtt')
         self.assertEqual(expected, actual)
 
-
 class APITests(unittest.TestCase):
 
     def test_parse_apirespone(self):
@@ -91,6 +90,33 @@ class APITests(unittest.TestCase):
         page2 = 'http://www.dreamfilmhd.org/API/api.php?type=list&offset=50&limit=25&q=Bad%20santa&sort=alpha'
         self.assertEqual(pager(1), page1)
         self.assertEqual(pager(2), page2)
+
+
+class SortTests(unittest.TestCase):
+
+    def tearDown(self):
+        actual = sorted(self.input, key=dreamfilm.natural_sort_key)
+        self.assertEqual(self.expected, actual)
+
+    def test_alphabetical(self):
+        self.input = ['foo', 'bar', 'baz']
+        self.expected = ['bar', 'baz', 'foo']
+
+    def test_numbers(self):
+        self.input = ['number_12', 'number_4', 'number_0']
+        self.expected = ['number_0', 'number_4', 'number_12']
+
+    def test_leading_numbers(self):
+        self.input = ['1080p', '720p', '240p', '360p', '480p']
+        self.expected = ['240p', '360p', '480p', '720p', '1080p']
+
+    def test_mixed_leading_zeros(self):
+        self.input = ['Season 02', 'Season 000010', 'Season 1']
+        self.expected = ['Season 1', 'Season 02', 'Season 000010']
+
+    def test_sorting_mixed_cases_preserves_order(self):
+        self.input = ['b', 'B', 'A', 'a']
+        self.expected = ['A', 'a', 'b', 'B']
 
 
 if __name__ == '__main__':
