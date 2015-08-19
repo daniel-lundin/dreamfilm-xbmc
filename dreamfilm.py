@@ -122,7 +122,7 @@ def _series_to_list(json_data, serie_id):
     seasons = []
     current_episodes = []
 
-    for item in sorted(response['data'], key=lambda x: x['season']):
+    for item in sorted(response['data'], key=lambda x: natural_sort_key(x['season'])):
         episode = Episode(item['id'], item['season'], item['episode'], item['url'])
         if last_season and episode.season != last_season:
             seasons.append(_make_season(serie_id, current_episodes))
