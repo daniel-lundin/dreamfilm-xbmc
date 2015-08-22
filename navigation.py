@@ -281,14 +281,15 @@ class Navigation(object):
         return self.xbmcplugin.endOfDirectory(self.handle)
 
     def quality_select_dialog(self, stream_urls):
-        qualities = [s[0] for s in stream_urls]
+        sorted_urls = sorted(stream_urls, key=lambda s: dreamfilm.natural_sort_key(s[0]))
+        qualities = [s[0] for s in sorted_urls]
         dialog = self.xbmcgui.Dialog()
         answer = 0
         if len(qualities) > 1:
             answer = dialog.select("Quality Select", qualities)
             if answer == -1:
                 return
-        url = stream_urls[answer][1]
+        url = sorted_urls[answer][1]
         return url
 
     def dispatch(self):

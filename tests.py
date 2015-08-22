@@ -131,9 +131,9 @@ class QualitySelectTests(unittest.TestCase):
 
     def test_unsorted_input(self):
         self.input = [("1080p", "url_1080"), ('720p', 'url_720')]
-        self.dialog_arg = ["1080p", "720p"]
+        self.dialog_arg = ["720p", "1080p"]
         self.dialog.select.return_value = 1
-        self.expected = "url_720"
+        self.expected = "url_1080"
 
 
 class SortTests(unittest.TestCase):
