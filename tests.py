@@ -5,6 +5,7 @@ import json
 import dreamfilm
 import resolvers
 from mocks import Xbmc, Xbmcplugin, Xbmcgui
+from mock import MagicMock
 from navigation import Navigation
 
 
@@ -90,6 +91,49 @@ class APITests(unittest.TestCase):
         page2 = 'http://www.dreamfilmhd.org/API/api.php?type=list&offset=50&limit=25&q=Bad%20santa&sort=alpha'
         self.assertEqual(pager(1), page1)
         self.assertEqual(pager(2), page2)
+
+
+class QualitySelectTests(unittest.TestCase):
+
+    def setUp(self):
+        self.dialog = Xbmcgui.Dialog()
+        self.dialog.select = MagicMock(name='select')
+        xbmcgui = Xbmcgui()
+        xbmcgui.Dialog = MagicMock(name='Dialog')
+        xbmcgui.Dialog.return_value = self.dialog
+        self.navigation = Navigation(None, None, xbmcgui, [None, 1])
+
+    def tearDown(self):
+        actual = self.navigation.quality_select_dialog(self.input)
+        self.assertEqual(actual, self.expected)
+
+        if self.dialog_arg:
+            self.dialog.select.assert_called_once_with("Quality Select", self.dialog_arg)
+        else:
+            self.assertFalse(self.dialog.select.called, "Dialog called!")
+
+    def test_only_one_input(self):
+        self.input = [("240p", "url_240")]
+        self.expected = "url_240"
+        self.dialog_arg = None
+
+    def test_select_first_url(self):
+        self.input = [("360p", "url_360"), ('720p', 'url_720')]
+        self.dialog_arg = ["360p", "720p"]
+        self.dialog.select.return_value = 0
+        self.expected = "url_360"
+
+    def test_select_second_url(self):
+        self.input = [("360p", "url_360"), ('720p', 'url_720')]
+        self.dialog_arg = ["360p", "720p"]
+        self.dialog.select.return_value = 1
+        self.expected = "url_720"
+
+    def test_unsorted_input(self):
+        self.input = [("1080p", "url_1080"), ('720p', 'url_720')]
+        self.dialog_arg = ["1080p", "720p"]
+        self.dialog.select.return_value = 1
+        self.expected = "url_720"
 
 
 class SortTests(unittest.TestCase):
