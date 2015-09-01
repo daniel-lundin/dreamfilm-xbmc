@@ -59,6 +59,10 @@ class SubtitleTests(unittest.TestCase):
         self.url = 'http://url.com&c1_file=http://sub1.vtt&c1_label=English&c2_file=http://sub2.vtt&c2_label=Svenska&c3_file=http://sub3.vtt&c3_label=Suomi'
         self.expected = ['http://sub1.vtt', 'http://sub2.vtt', 'http://sub3.vtt']
 
+    def test_missing_http(self):
+        self.url = 'http://url.com&c1_file=sub1.vtt&c1_label=English&c2_file=sub2.vtt&c2_label=Svenska&c3_file=sub3.vtt&c3_label=Suomi'
+        self.expected = ['http://sub1.vtt', 'http://sub2.vtt', 'http://sub3.vtt']
+
 
 class APITests(unittest.TestCase):
 

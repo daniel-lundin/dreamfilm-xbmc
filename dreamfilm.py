@@ -108,7 +108,14 @@ def streams_from_player_url(url):
 
 
 def subtitles_from_url(url):
-    return re.findall('&c\d+_file=(?P<url>[^&]+)', url)
+    subs = re.findall('&c\d+_file=(?P<url>[^&]+)', url)
+
+    for idx, s in enumerate(subs):
+        if '://' not in s:
+            # No protocol given, assume http
+            subs[idx] = 'http://' + s
+
+    return subs
 
 
 def _search_url(q, page=0):
