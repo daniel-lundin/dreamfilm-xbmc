@@ -122,7 +122,7 @@ def _series_to_list(json_data, serie_id):
     seasons = []
     current_episodes = []
 
-    for item in sorted(response['data'], key=lambda x: x['season']):
+    for item in sorted(response['data'], key=lambda x: natural_sort_key(x['season'])):
         episode = Episode(item['id'], item['season'], item['episode'], item['url'])
         if last_season and episode.season != last_season:
             seasons.append(_make_season(serie_id, current_episodes))
@@ -134,7 +134,7 @@ def _series_to_list(json_data, serie_id):
 
 
 def _make_season(serie_id, episodes):
-    return Season(serie_id, episodes[0].season, sorted(episodes, key=lambda x: x.episode))
+    return Season(serie_id, episodes[0].season, sorted(episodes, key=lambda x: natural_sort_key(x.episode)))
 
 def _api_request(url):
     opener = urllib2.build_opener()
@@ -174,6 +174,10 @@ def _head_request(url):
 
     response = urllib2.urlopen(request)
     print response.info()
+
+def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split(_nsre, s)]
 
 if __name__ == '__main__':
     print search('abba');
