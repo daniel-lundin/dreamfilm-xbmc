@@ -134,6 +134,12 @@ class QualitySelectTests(unittest.TestCase):
         self.dialog.select.return_value = 1
         self.expected = "url_1080"
 
+    def test_select_leading_whitespace_url(self):
+        self.input = [("360p", "url_360"), ('720p', ' url_720')]
+        self.dialog_arg = ["360p", "720p"]
+        self.dialog.select.return_value = 1
+        self.expected = "url_720"
+
 
 class SortTests(unittest.TestCase):
 
