@@ -64,6 +64,19 @@ class SubtitleTests(unittest.TestCase):
         self.url = 'http://url.com&c1_file=sub1.vtt&c1_label=English&c2_file=sub2.vtt&c2_label=Svenska&c3_file=sub3.vtt&c3_label=Suomi'
         self.expected = ['http://sub1.vtt', 'http://sub2.vtt', 'http://sub3.vtt']
 
+    def test_leading_and_trailing_whitespace(self):
+        self.url = 'http://url.com?cap&c1_file= http://sub.vtt  &c1_label=Dansk'
+        self.expected = ['http://sub.vtt']
+
+    def test_leading_whitespace_missing_http(self):
+        self.url = 'http://url.com?cap&c1_file= sub.vtt&c1_label=Svenska'
+        self.expected = ['http://sub.vtt']
+
+    def test_url_containing_whitespaces(self):
+        self.url = 'http://url.com?cap&c1_file= http://s u b.vtt  &c1_label=Dansk'
+        self.expected = ['http://s u b.vtt']
+
+
 class APITests(unittest.TestCase):
 
     def test_parse_apirespone(self):
