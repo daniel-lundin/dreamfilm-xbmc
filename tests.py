@@ -34,7 +34,7 @@ class ParseTests(unittest.TestCase):
     def test_vk_pass_resolver(self):
         with open('fixtures/vkpass.html') as f:
             html = f.read()
-            formats = resolvers._vkpass_streams_from_html(html)
+            formats = resolvers._vkpass_streams_from_html(html, False)
             self.assertEqual(len(formats), 3)
 
 
