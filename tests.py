@@ -34,7 +34,7 @@ class ParseTests(unittest.TestCase):
     def test_vk_pass_resolver(self):
         with open('fixtures/vkpass.html') as f:
             html = f.read()
-            formats = resolvers._vkpass_streams_from_html(html)
+            formats = resolvers._vkpass_streams_from_html(html, False)
             self.assertEqual(len(formats), 3)
 
 
@@ -63,6 +63,19 @@ class SubtitleTests(unittest.TestCase):
     def test_missing_http(self):
         self.url = 'http://url.com&c1_file=sub1.vtt&c1_label=English&c2_file=sub2.vtt&c2_label=Svenska&c3_file=sub3.vtt&c3_label=Suomi'
         self.expected = ['http://sub1.vtt', 'http://sub2.vtt', 'http://sub3.vtt']
+
+    def test_leading_and_trailing_whitespace(self):
+        self.url = 'http://url.com?cap&c1_file= http://sub.vtt  &c1_label=Dansk'
+        self.expected = ['http://sub.vtt']
+
+    def test_leading_whitespace_missing_http(self):
+        self.url = 'http://url.com?cap&c1_file= sub.vtt&c1_label=Svenska'
+        self.expected = ['http://sub.vtt']
+
+    def test_url_containing_whitespaces(self):
+        self.url = 'http://url.com?cap&c1_file= http://s u b.vtt  &c1_label=Dansk'
+        self.expected = ['http://s u b.vtt']
+
 
 class APITests(unittest.TestCase):
 
@@ -133,6 +146,12 @@ class QualitySelectTests(unittest.TestCase):
         self.dialog_arg = ["720p", "1080p"]
         self.dialog.select.return_value = 1
         self.expected = "url_1080"
+
+    def test_select_leading_whitespace_url(self):
+        self.input = [("360p", "url_360"), ('720p', ' url_720')]
+        self.dialog_arg = ["360p", "720p"]
+        self.dialog.select.return_value = 1
+        self.expected = "url_720"
 
 
 class SortTests(unittest.TestCase):

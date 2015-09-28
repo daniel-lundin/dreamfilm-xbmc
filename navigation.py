@@ -289,7 +289,7 @@ class Navigation(object):
             answer = dialog.select("Quality Select", qualities)
             if answer == -1:
                 return
-        url = sorted_urls[answer][1]
+        url = sorted_urls[answer][1].strip()
         return url
 
     def dispatch(self):
