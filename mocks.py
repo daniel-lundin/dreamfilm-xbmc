@@ -57,6 +57,9 @@ class Xbmcgui(object):
         def setThumbnailImage(self, thumb_url):
             pass
 
+        def setSubtitles(self, subtitles):
+            pass
+
     class Dialog(object):
         def ok(self, title, msg):
             print '[DIALOG] %s - %s' % (title, msg)
