@@ -126,7 +126,7 @@ def okru_streams(url):
     return sources
 
 
-def vkpass_streams(url, recursive_call=False):
+def vkpass_streams(url, count=0):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -138,26 +138,30 @@ def vkpass_streams(url, recursive_call=False):
     html = response.read()
     response.close()
 
-    return _vkpass_streams_from_html(html, recursive_call)
+    return _vkpass_streams_from_html(html, count)
 
-def _vkpass_streams_from_html(html, recursive_call):
+def _vkpass_streams_from_html(html, count):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
+
+    if count > 10:
+        # To avoid infinite recursion
+        return None
 
     identifier = "vsource=["
 
     if identifier not in html:
         binurl = re.search(r"src= \"javascript:decodeURIComponent\(escape\(window.atob\(\\'(?P<binurl>.*)\\'\)\)\)\"", html) #\(\\\'(?P<binurl>.*)\\\'\)\)', html)
         if binurl:
-            url = binascii.a2b_base64(binurl.group('binurl'))
-            return _vkpass_streams_from_html(url, True)
+            html = binascii.a2b_base64(binurl.group('binurl'))
+            return _vkpass_streams_from_html(html, count + 1)
 
         # No match, try clear text decoding
         redirect_url = re.search('src=\"(?P<url>.*?)\?', html)
-        if redirect_url and not recursive_call:
-            return vkpass_streams(redirect_url.group('url'), True)
+        if redirect_url:
+            return vkpass_streams(redirect_url.group('url'), count + 1)
         else:
             return None
 
