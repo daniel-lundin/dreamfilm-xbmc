@@ -146,6 +146,17 @@ def _vkpass_streams_from_html(html, recursive_call):
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
 
+    # Look for video tag
+    source_tags = re.findall(r'(<source.*?\/>)', html)
+    if source_tags:
+        streams = []
+        for source_tag in source_tags:
+            match = re.search(r"src='(.*?)'.*?label='(.*?)'", source_tag)
+            if match:
+                streams.append((match.group(2), match.group(1)))
+
+        return streams
+
     identifier = "vsource=["
 
     if identifier not in html:
@@ -160,6 +171,7 @@ def _vkpass_streams_from_html(html, recursive_call):
             return vkpass_streams(redirect_url.group('url'), True)
         else:
             return None
+
 
     vsource_start = html.index(identifier) + len(identifier) - 1
     vsource_end = html.index("]", vsource_start + 1) + 1

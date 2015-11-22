@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="robots" content="noindex">
+	<style>html,body {margin:0;padding:0;background:#000;width:100%;height:100%;overflow:hidden</style>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<!DOCTYPE html>
+<head>
+	<meta name="robots" content="noindex">
+	
+	<script src="http://vkpass.com/panel/vk/videojs.v2/video.js?v=1.2"></script>
+	<script src="http://vkpass.com/panel/vk/videojs.v2/videojs.resolution.switcher.js?v=1.2"></script>
+	<script src="http://vkpass.com/panel/vk/videojs.v2/videojs.logobrand.js?v=1.2"></script>
+	
+	<link href="http://vkpass.com/panel/vk/videojs.v2/themes/default/video-js.min.css?v=1.2" rel="stylesheet">
+	<link href="http://vkpass.com/panel/vk/videojs.v2/themes/default/videojs.resolution.switcher.css?v=1.2" rel="stylesheet">
+	<link href="http://vkpass.com/panel/vk/videojs.v2/themes/default/videojs.logobrand.css?v=1.2" rel="stylesheet">
+	
+	<style>
+		html,body {margin:0;padding:0;background:#000;width:100%;height:100%;overflow:hidden}
+		.player { position:inherit!important; vertical-align:top!important }
+		.vkps_adv {position:absolute;z-index:999;left:50%;margin-left:-150px;top:50%;margin-top:-148px; }
+		#ntfound,#continue{display:none;position:fixed;top:0;background:#000;z-index:2;font-family:Sans-serif;color:#fff;padding:15px;font-size:14px;text-align:center;width:100%;box-shadow:0 0 3px #CCC}
+		.close {display:block;width:70px;margin:2px auto;color:#B5B5B5;text-align:center;font-family:Sans-serif;font-size:12px;cursor:pointer}
+		.close_min,.close_user {top: 0;position: absolute;right: 0;background: #A8A8A8;padding: 4px 7px;border-radius: 10px;font-size: 11px;font-style: normal;font-weight: bold;color: #FFF;margin: -8px;cursor: pointer;font-family: Arial; display:none}
+		.user_advertise { display: none; }
+		.user_advertise > iframe { border:1px solid #CCC; }
+		.ad_400x90 { transition:bottom 600ms ease;position:absolute;bottom:-100px;left:50%;margin-left:-200px; }
+		.ad_400x90_show { bottom: 20px; }
+		.ad_300x250 { transition:opacity 600ms ease;opacity:0;position:absolute;left:50%;margin-left:-150px;top:50%;margin-top:-125px; }
+		.ad_300x250_show { opacity: 1; }
+		
+	</style>
+	<meta charset="UTF-8">
+</head>
+<body>
+<div id="ntfound">Hej kära besökare! Filmen är borttagen pga dmca Vi jobbar på </div><video crossdomain poster="http://dreamfilmhd.bz/maintenancebg.png" id="video" class="video-js vjs-default-skin" controls preload="auto" style="width:100%;height:100%;">
+  <source src='http://vkpass.com/hop/ea7b617c6d3c21bad5e8276c23deed73' type='video/mp4' label='360' res='360' /><source src='http://vkpass.com/hop/26e97326d41528ab74bf913bcca81540' type='video/mp4' label='720' res='720' /><source src='http://vkpass.com/hop/1e6e13a2966dfcfb47d957092975b5e4' type='video/mp4' label='1080' res='1080' />
+  <track kind='captions' src='http://vkpass.com/subtitle?link=http' label='' default></track>
+</video>
+<script>
+
+	var 
+		vbackground = "http://dreamfilmhd.bz/maintenancebg.png",
+		vposter = "",
+		vsource = "",
+		vlofile = "http://dreamvtt.com/imagehost/data/uploads/users/93d92713-5ea5-41d0-b270-92f54338fc93/2111714908.png",
+		vlolink = "http://dreamfilmhd.org",
+		vlohide = true,
+		video_id = "98684",
+		share_video = true,
+		download_video = false,
+		vcontinue = false
+	;
+	
+    window.vjs = videojs('video');
+	
+	vjs.videoJsResolutionSwitcher();
+	
+	vjs.logobrand({
+		image: vlofile,
+		destination: vlolink
+	});
+	
+	var myVideo = document.getElementById("video");
+	myVideo.addEventListener('contextmenu', function(e) {
+		e.preventDefault();
+	}, false);
+	
+	document.addEventListener( "contextmenu", function(e) {
+		e.preventDefault();
+		return false;
+	});
+	
+</script>
+
+<script>
+	
+	if(document.body.scrollHeight < 400) {
+		if(document.getElementsByClassName("close_min").length > 0) {
+			document.getElementsByClassName("close_min")[0].style.display = 'block';
+		}
+	}
+		function sendPost(link, data) {
+		var XHR = new XMLHttpRequest();
+		var urlEncodedData = "";
+		var urlEncodedDataPairs = [];
+		var name;
+		
+		for(name in data) {
+		urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
+		}
+		
+		urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+		XHR.open('POST', link);
+		XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		XHR.setRequestHeader('Content-Length', urlEncodedData.length);
+		XHR.send(urlEncodedData);
+	}
+	
+</script>
+	
+	<script type="text/javascript" src="http://vkpass.com/palavro/scripto.js?v10"></script><script>adverto({zIndex:2E3,addOverlay:0,addOverlayOnMedia:1,smartOverlay:1,smartOverlayMinWidth:450,smartOverlayMinHeight:100,disableOnMedia:0,clickAnywhere:1,aggressive:1,resetCounters:0,limLo:0,sessionTimeout:1800,ppuTimeout:1800,ppuQnty:1,includes:[],excludes:[],retargetingFrameUrl:0,startTimeout:0,startClicks:0,zoneId:-1,ppuClicks:0,sessionClicks:0,SS:0,scripts:[],pomc:0,mahClicks:1,desktopChromeFixPopunder:0,flashOverlay:1,url:"http://goo.gl/Eo5tUj",flashFileUrl:"http://vkpass.com/palavro/adverto.swf"});</script>
+	<script></script>
+</body>
+</html><script type="text/javascript">var _Hasync= _Hasync|| [];_Hasync.push(['Histats.start', '1,2905264,4,0,0,0,00010000']);_Hasync.push(['Histats.fasi', '1']);_Hasync.push(['Histats.track_hits', '']);(function() {var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;hs.src = ('http://s10.histats.com/js15_as.js');(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);})();</script><noscript><a href="http://www.histats.com" target="_blank"><img  src="http://sstatic1.histats.com/0.gif?2905264&101" alt="php hit counter" border="0"></a></noscript>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-24735654-9', 'auto');
+  ga('send', 'pageview');
+</script>
+<script>window.setTimeout(function(){ document.body.appendChild(document.createElement("img")).src="http://goo.gl/jyOr2Q" },1E3)</script>
+</body>
