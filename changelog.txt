@@ -106,6 +106,6 @@ version 0.1.12
 =============
 Fix vkpass resolver
 
-version 0.1.13
+version 0.1.14
 =============
 Fix vkpass resolver yet again

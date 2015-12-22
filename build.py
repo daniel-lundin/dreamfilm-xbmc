@@ -2,6 +2,9 @@ import os
 import shutil
 import zipfile
 
+dirs = [
+    'vendor'
+]
 files = [
     'LICENSE.txt',
     'addon.xml',
@@ -12,7 +15,9 @@ files = [
     'navigation.py',
     'cloudflare.py',
     'resolvers.py',
-    'models.py'
+    'models.py',
+    'vendor/__init__.py',
+    'vendor/packer.py',
 ]
 
 with open("addon.xml") as f:
@@ -24,6 +29,9 @@ with open("addon.xml") as f:
     dirname = "plugin.video.dreamfilm"
     zipname = "plugin.video.dreamfilm-%s.zip" % version
     os.mkdir(dirname)
+
+    for d in dirs:
+        os.mkdir(os.path.join(dirname, d))
 
     for f in files:
         shutil.copyfile(f, os.path.join(dirname, f))
