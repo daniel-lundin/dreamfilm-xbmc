@@ -5,6 +5,8 @@ import HTMLParser
 import re
 import binascii
 
+from vendor import packer
+
 
 def vk_streams(html):
     """ Finds streams for vk.com player """
@@ -61,7 +63,6 @@ def mailru_streams(url):
     html = resp.read()
     cookie_string = resp.headers.getheader('Set-Cookie').split(';')[0]
 
-    print resp.headers.getheader('Set-Cookie')
     headers = {
         'Cookie': cookie_string
     }
@@ -140,22 +141,41 @@ def vkpass_streams(url, recursive_call=False):
 
     return _vkpass_streams_from_html(html, recursive_call)
 
+def _extract_packed_videourls(html):
+    eval_start = html.find('eval(function(p,a,c,k,e')
+    eval_end = html.find('</script>', eval_start)
+    packed_script = html[eval_start : eval_end]
+    unpacked_script = packer.unpack(packed_script)
+    return _extract_source_tags(unpacked_script, single_quotes=False)
+
+def _extract_source_tags(html, single_quotes=True):
+    source_tags = re.findall(r'(<source.*?\/>)', html)
+    if source_tags:
+        streams = []
+        for source_tag in source_tags:
+            if single_quotes:
+                match = re.search(r"src='(.*?)'.*?label='(.*?)'", source_tag)
+            else:
+                match = re.search(r'src="(.*?)".*?label="(.*?)"', source_tag)
+            if match:
+                streams.append((match.group(2), match.group(1)))
+
+        return streams
+
 def _vkpass_streams_from_html(html, recursive_call):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
 
+    # Look for p,a,c,k,e,d js files
+    if html.find('eval(function(p,a,c,k,e') != -1:
+        return _extract_packed_videourls(html);
+
     # Look for video tag
     source_tags = re.findall(r'(<source.*?\/>)', html)
     if source_tags:
-        streams = []
-        for source_tag in source_tags:
-            match = re.search(r"src='(.*?)'.*?label='(.*?)'", source_tag)
-            if match:
-                streams.append((match.group(2), match.group(1)))
-
-        return streams
+        return _extract_source_tags(html)
 
     identifier = "vsource=["
 

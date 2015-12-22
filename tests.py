@@ -43,6 +43,12 @@ class ParseTests(unittest.TestCase):
             formats = resolvers._vkpass_streams_from_html(html, False)
             self.assertEqual(len(formats), 3)
 
+    def test_vk_pass_resolver_newest(self):
+        with open('fixtures/vkpass_newest.html') as f:
+            html = f.read()
+            formats = resolvers._vkpass_streams_from_html(html, False)
+            self.assertEqual(len(formats), 2)
+
 
 class SubtitleTests(unittest.TestCase):
 
