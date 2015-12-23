@@ -109,3 +109,7 @@ Fix vkpass resolver
 version 0.1.14
 =============
 Fix vkpass resolver yet again
+
+version 0.1.15
+=============
+Strip whitespaces in urls from API
