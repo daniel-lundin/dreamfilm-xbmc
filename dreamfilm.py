@@ -4,6 +4,7 @@ import urllib2
 import re
 import json
 from codecs import BOM_UTF8
+import xbmc
 
 import resolvers
 from models import Item, Episode, Season
@@ -88,6 +89,7 @@ def list_genre(genre, serie, page):
 
 
 def streams_from_player_url(url):
+    xbmc.log('streams_from_player_url: ' + str(url), xbmc.LOGDEBUG)
     # Fix for some urls that contains spaces
     url = url.replace(' ', '')
     print url
