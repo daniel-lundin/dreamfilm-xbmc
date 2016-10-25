@@ -4,8 +4,6 @@ import json
 import HTMLParser
 import re
 import binascii
-import xbmc
-import traceback
 
 from vendor import packer
 
@@ -130,11 +128,9 @@ def okru_streams(url):
 
 
 def vkpass_streams(url, recursive_call=False):
-    xbmc.log('vkpass_streams: ' + str(url), xbmc.LOGDEBUG)
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#        'Referer': 'http://www.dreamfilmhd.org/API/api.php'
     }
 
     req = urllib2.Request(url, headers=HEADERS)
@@ -142,7 +138,20 @@ def vkpass_streams(url, recursive_call=False):
     html = response.read()
     response.close()
 
-    return _vkpass_streams_from_html(html, recursive_call)
+    streams = _vkpass_streams_from_html(html, recursive_call)
+    if not streams or len(streams) == 0:
+        # check for alternatives
+        changers = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<", html)
+        for changer in changers:
+            if len(changer[0]) == 0: # not active
+                alturl = url + '&' + 'source=' + changer[1]
+                req = urllib2.Request(alturl, headers=HEADERS)
+                response = urllib2.urlopen(req)
+                html = response.read()
+                response.close()
+                streams = _vkpass_streams_from_html(html, recursive_call)
+                if streams and len(streams) > 0: return streams
+    return streams
 
 def _extract_packed_videourls(html):
     eval_start = html.find('eval(function(p,a,c,k,e')
@@ -162,20 +171,13 @@ def _extract_source_tags(html, single_quotes=True):
             if match:
                 streams.append((match.group(2), match.group(1)))
 
-        if len(streams) == 0:
-            xbmc.log('_extract_source_tags: failed to extract streams', xbmc.LOGERROR)
-            xbmc.log(traceback.format_exc(), xbmc.LOGERROR)
         return streams
-    xbmc.log('_extract_source_tags: no source tags', xbmc.LOGERROR)
-    xbmc.log(traceback.format_exc(), xbmc.LOGERROR)
 
 def _extract_videoz_url(html):
     url = re.search("<iframe.*? src='(.*?)'", html)
-    xbmc.log('_extract_videoz_url: ' + str(url), xbmc.LOGDEBUG)
     return vkpass_streams(url.group(1), recursive_call=True)
 
 def _vkpass_streams_from_html(html, recursive_call):
-    xbmc.log('_vkpass_streams_from_html', xbmc.LOGDEBUG)
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -183,19 +185,16 @@ def _vkpass_streams_from_html(html, recursive_call):
 
     # Look for videoz
     if re.findall("<iframe.*? src='", html):
-        xbmc.log('_vkpass_streams_from_html: videoz', xbmc.LOGDEBUG)
         return _extract_videoz_url(html)
 
     # Look for p,a,c,k,e,d js files
     if html.find('eval(function(p,a,c,k,e') != -1:
-        xbmc.log('_vkpass_streams_from_html: packed', xbmc.LOGDEBUG)
         return _extract_packed_videourls(html)
 
 
     # Look for video tag
     source_tags = re.findall(r'(<source.*?\/>)', html)
     if source_tags:
-        xbmc.log('_vkpass_streams_from_html: tags', xbmc.LOGDEBUG)
         return _extract_source_tags(html)
 
     identifier = "vsource=["
@@ -211,8 +210,6 @@ def _vkpass_streams_from_html(html, recursive_call):
         if redirect_url and not recursive_call:
             return vkpass_streams(redirect_url.group('url'), True)
         else:
-            xbmc.log('_vkpass_streams_from_html: failed to extract stream', xbmc.LOGERROR)
-            xbmc.log(html, xbmc.LOGERROR)
             return None
 
 
@@ -237,9 +234,7 @@ def _vkpass_streams_from_html(html, recursive_call):
         formats.append((label, link))
         file_start = html.find('file:', quote_end)
 
-    if len(formats) == 0:
-        xbmc.log('_vkpass_streams_from_html: failed to extract formats', xbmc.LOGERROR)
-        xbmc.log(traceback.format_exc(), xbmc.LOGERROR)
+
     return formats
 
 
