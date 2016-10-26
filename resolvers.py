@@ -138,19 +138,24 @@ def vkpass_streams(url, recursive_call=False):
     html = response.read()
     response.close()
 
-    streams = _vkpass_streams_from_html(html, recursive_call)
-    if not streams or len(streams) == 0:
+    streams = []
+    changers = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<", html)
+    if not recursive_call and changers:
         # check for alternatives
-        changers = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<", html)
         for changer in changers:
-            if len(changer[0]) == 0: # not active
-                alturl = url + '&' + 'source=' + changer[1]
-                req = urllib2.Request(alturl, headers=HEADERS)
-                response = urllib2.urlopen(req)
-                html = response.read()
-                response.close()
-                streams = _vkpass_streams_from_html(html, recursive_call)
-                if streams and len(streams) > 0: return streams
+            alturl = url + '&' + 'source=' + changer[1]
+            req = urllib2.Request(alturl, headers=HEADERS)
+            response = urllib2.urlopen(req)
+            html = response.read()
+            response.close()
+            more_streams = _vkpass_streams_from_html(html, recursive_call)
+            if more_streams and len(more_streams) > 0:
+                streams += [("%s: %s" % (changer[2], stream[0]), stream[1]) for stream in more_streams]
+    else:
+        more_streams = _vkpass_streams_from_html(html, recursive_call)
+        if more_streams and len(more_streams) > 0:
+            streams += more_streams
+            
     return streams
 
 def _extract_packed_videourls(html):
