@@ -167,6 +167,7 @@ class Navigation(object):
             return self.select_stream(title, streams, subtitles)
         except Exception, e:
             print str(e)
+            print(traceback.format_exc())
             dialog = self.xbmcgui.Dialog()
             dialog.ok("Error", "Failed to open stream")
 
