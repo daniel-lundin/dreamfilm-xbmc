@@ -1,5 +1,6 @@
 import urllib
 import urllib2
+import urlparse
 import json
 import HTMLParser
 import re
@@ -131,8 +132,9 @@ def vkpass_streams(url, recursive_call=False):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Referer': 'http://dreamfilmhd.bz/',
     }
+    if "vkpass.com" in urlparse.urlparse(url).netloc:
+        HEADERS['Referer'] = 'http://dreamfilmhd.bz/'
 
 
     req = urllib2.Request(url, headers=HEADERS)
