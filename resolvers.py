@@ -29,6 +29,7 @@ def vk_streams(html):
             formats.append((key, value))
     return formats
 
+
 def google_streams(html):
     """ Finds streams for docs.google.com player """
     FLASHVARS_START = 'flashVars":{'
@@ -72,7 +73,7 @@ def mailru_streams(url):
     metadata_url_end = html.find('"', metadata_url_start)
     metadata_url = html[metadata_url_start:metadata_url_end]
 
-    metadata_response =  urllib2.urlopen(metadata_url)
+    metadata_response = urllib2.urlopen(metadata_url)
     metadata = json.loads(metadata_response.read())
 
     # XBMC player needs cookies to play these
@@ -136,7 +137,6 @@ def vkpass_streams(url, recursive_call=False):
     if "vkpass.com" in urlparse.urlparse(url).netloc:
         HEADERS['Referer'] = 'http://dreamfilmhd.bz/'
 
-
     req = urllib2.Request(url, headers=HEADERS)
     response = urllib2.urlopen(req)
     html = response.read()
@@ -145,36 +145,41 @@ def vkpass_streams(url, recursive_call=False):
 #        f.write(html)
 
     streams = []
-    changers = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<", html)
-    if not recursive_call and changers:
-        # check for alternatives
-        for changer in changers:
-            if len(changer[0]) == 0: # not active
-                alturl = url + '&' + 'source=' + changer[1]
+    sources = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<",
+                         html)
+    if not recursive_call and sources:
+        # check for alternative sources
+        for source in sources:
+            if len(source[0]) == 0: # not active
+                alturl = url + '&' + 'source=' + source[1]
                 req = urllib2.Request(alturl, headers=HEADERS)
                 response = urllib2.urlopen(req)
                 althtml = response.read()
                 response.close()
             else:
+                # already got this source's html
                 althtml = html
             more_streams = _vkpass_streams_from_html(althtml, recursive_call)
             if more_streams and len(more_streams) > 0:
-                streams += [("%s: %s" % (changer[2], stream[0]), stream[1]) for stream in more_streams]
+                streams += [("%s: %s" % (source[2], stream[0]), stream[1])
+                            for stream in more_streams]
     else:
         more_streams = _vkpass_streams_from_html(html, recursive_call)
         if more_streams and len(more_streams) > 0:
             streams += more_streams
-            
+
     return streams
+
 
 def _extract_packed_videourls(html):
     eval_start = html.find('eval(function(p,a,c,k,e')
     eval_end = html.find('</script>', eval_start)
-    packed_script = html[eval_start : eval_end]
+    packed_script = html[eval_start: eval_end]
     unpacked_script = packer.unpack(packed_script)
-    return _extract_source_tags(unpacked_script, single_quotes=False)
+    return _extract_source_tags(unpacked_script)
 
-def _extract_source_tags(html, single_quotes=True):
+
+def _extract_source_tags(html):
     source_tags = re.findall(r'(<source.*?\/>)', html)
     if source_tags:
         streams = []
@@ -187,9 +192,11 @@ def _extract_source_tags(html, single_quotes=True):
 
         return streams
 
+
 def _extract_videoz_url(html):
     url = re.search("<iframe.*? src='(.*?)'", html)
     return vkpass_streams(url.group(1), recursive_call=True)
+
 
 def _vkpass_streams_from_html(html, recursive_call):
     HEADERS = {
@@ -204,7 +211,6 @@ def _vkpass_streams_from_html(html, recursive_call):
     # Look for p,a,c,k,e,d js files
     if html.find('eval(function(p,a,c,k,e') != -1:
         return _extract_packed_videourls(html)
-
 
     # Look for video tag
     source_tags = re.findall(r'(<source.*?\/>)', html)
@@ -226,7 +232,6 @@ def _vkpass_streams_from_html(html, recursive_call):
         else:
             return None
 
-
     vsource_start = html.index(identifier) + len(identifier) - 1
     vsource_end = html.index("]", vsource_start + 1) + 1
 
@@ -236,18 +241,17 @@ def _vkpass_streams_from_html(html, recursive_call):
     while file_start != -1 and file_start < vsource_end:
         quote_start = file_start + 6
         quote_end = html.find('"', quote_start + 1)
-        url = html[quote_start : quote_end]
+        url = html[quote_start: quote_end]
 
         label_start = html.find('label:', quote_end)
         quote_start = label_start + 7
         quote_end = html.find('"', quote_start + 1)
-        label = html[quote_start : quote_end]
+        label = html[quote_start: quote_end]
         link = '%s|User-Agent=%s&Accept=%s'
         link = link % (url, HEADERS['User-Agent'], HEADERS['Accept'])
 
         formats.append((label, link))
         file_start = html.find('file:', quote_end)
-
 
     return formats
 
