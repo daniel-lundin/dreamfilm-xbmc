@@ -135,7 +135,7 @@ def vkpass_streams(url, recursive_call=False):
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
     if "vkpass.com" in urlparse.urlparse(url).netloc:
-        HEADERS['Referer'] = 'http://dreamfilmhd.bz/'
+        HEADERS['Referer'] = 'http://dreamfilmhd.sh/'
 
     req = urllib2.Request(url, headers=HEADERS)
     response = urllib2.urlopen(req)
@@ -194,7 +194,7 @@ def _extract_source_tags(html):
 
 
 def _extract_videoz_url(html):
-    url = re.search("<iframe.*? src='(.*?)'", html)
+    url = re.search("<iframe.*? src=['\"](.*?)['\"]", html)
     return vkpass_streams(url.group(1), recursive_call=True)
 
 
@@ -205,7 +205,7 @@ def _vkpass_streams_from_html(html, recursive_call):
     }
 
     # Look for videoz
-    if re.findall("<iframe.*? src='", html):
+    if re.findall("<iframe.*? src=['\"]", html):
         return _extract_videoz_url(html)
 
     # Look for p,a,c,k,e,d js files

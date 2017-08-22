@@ -113,3 +113,7 @@ Fix vkpass resolver yet again
 version 0.1.15
 =============
 Strip whitespaces in urls from API
+
+version 0.1.15.7
+================
+Improved pattern in _extract_videoz_url
