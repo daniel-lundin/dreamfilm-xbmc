@@ -67,6 +67,8 @@ class Xbmcgui(object):
 
         def select(self, title, alternatives):
             print '[DIALOG SELECT] %s' % title
-            print "\n".join(alternatives)
-            return 0  # Select first one"
+            for index, alternative in enumerate(alternatives):
+                print '%d) %s' % (index, alternative)
+            input = raw_input('>> ')
+            return int(input)
 

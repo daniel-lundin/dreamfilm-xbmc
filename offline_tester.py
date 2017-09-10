@@ -2,7 +2,7 @@ from navigation import Navigation
 from mocks import Xbmc, Xbmcgui, Xbmcplugin
 
 if __name__ == '__main__':
-    argv = ['./offline.py', 1]
+    argv = ['./offline_tester.py', 1]
     history = []
     history.append(argv)
     while True:
