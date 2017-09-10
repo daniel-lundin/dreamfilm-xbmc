@@ -8,7 +8,7 @@ from codecs import BOM_UTF8
 import resolvers
 from models import Item, Episode, Season
 
-API_BASE_URL = 'http://www.dreamfilmhd.org/API/api.php'
+API_BASE_URL = 'http://www.dreamfilmhd.sh/API/api.php'
 ITEMS_PER_PAGE = 25
 
 GENRES = ["Action", "Anime", "Animation", "Adventure", "Biography", "Documentary", "Drama", "Family", "Fantasy", "Christmas", "Comedy", "War", "History", "Crime", "Music", "Musical", "Mystery", "Reality", "Romance", "Sci-Fi", "Horror", "Sport", "Swedish", "Thriller", "Western"]

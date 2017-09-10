@@ -1,6 +1,7 @@
 import urllib
 import dreamfilm
 import json
+import traceback
 
 
 class Navigation(object):
@@ -166,6 +167,7 @@ class Navigation(object):
             return self.select_stream(title, streams, subtitles)
         except Exception, e:
             print str(e)
+            print(traceback.format_exc())
             dialog = self.xbmcgui.Dialog()
             dialog.ok("Error", "Failed to open stream")
 
@@ -210,7 +212,7 @@ class Navigation(object):
         except Exception, e:
             dialog = self.xbmcgui.Dialog()
             print 'EEEE'
-            print str(e)
+            print(traceback.format_exc())
             dialog.ok("Error", "Failed to open stream: %s" % player_url)
 
     def play_episode(self, title, season_number, episode_number, url):
@@ -222,7 +224,7 @@ class Navigation(object):
             return self.select_stream(name, streams, subtitles)
         except Exception, e:
             print 'EEEE'
-            print str(e)
+            print(traceback.format_exc())
             dialog = self.xbmcgui.Dialog()
             return dialog.ok("Error", "Failed to open stream: %s" % url)
 
