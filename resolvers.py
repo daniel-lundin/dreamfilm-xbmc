@@ -135,7 +135,7 @@ def vkpass_streams(url, recursive_call=False):
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
     if "vkpass.com" in urlparse.urlparse(url).netloc:
-        HEADERS['Referer'] = 'http://dreamfilmhd.sh/'
+        HEADERS['Referer'] = 'http://dreamfilmhd.io/'
 
     req = urllib2.Request(url, headers=HEADERS)
     response = urllib2.urlopen(req)

@@ -90,7 +90,6 @@ def list_genre(genre, serie, page):
 def streams_from_player_url(url):
     # Fix for some urls that contains spaces
     url = url.replace(' ', '')
-    print url
     if 'mail.ru' in url:
         return resolvers.mailru_streams(url)
     if 'picasaweb.google.com' in url:

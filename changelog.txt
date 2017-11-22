@@ -117,3 +117,7 @@ Strip whitespaces in urls from API
 version 0.1.15.7
 ================
 Improved pattern in _extract_videoz_url
+
+version 0.1.15.9
+================
+Changed referer domain to "io", fixed error #48
