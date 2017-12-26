@@ -137,12 +137,15 @@ def vkpass_streams(url, recursive_call=False):
     if "vkpass.com" in urlparse.urlparse(url).netloc:
         HEADERS['Referer'] = 'http://dreamfilmhd.io/'
 
-    req = urllib2.Request(url, headers=HEADERS)
-    response = urllib2.urlopen(req)
-    html = response.read()
-    response.close()
-#    with open("vkpass.html", "w") as f:
-#        f.write(html)
+    try:
+        req = urllib2.Request(url, headers=HEADERS)
+        response = urllib2.urlopen(req)
+        html = response.read()
+        response.close()
+        #with open("vkpass.html", "w") as f:
+        #f.write(html)
+    except Exception, e:
+        return None
 
     streams = []
     sources = re.findall("<a class='(.*?)'.+?changeSource\('(.+?)'.+?>(.+?)<",
@@ -159,14 +162,20 @@ def vkpass_streams(url, recursive_call=False):
             else:
                 # already got this source's html
                 althtml = html
-            more_streams = _vkpass_streams_from_html(althtml, recursive_call)
-            if more_streams and len(more_streams) > 0:
-                streams += [("%s: %s" % (source[2], stream[0]), stream[1])
-                            for stream in more_streams]
+            try:
+                more_streams = _vkpass_streams_from_html(althtml, recursive_call)
+                if more_streams and len(more_streams) > 0:
+                    streams += [("%s: %s" % (source[2], stream[0]), stream[1])
+                                for stream in more_streams]
+            except:
+                pass
     else:
-        more_streams = _vkpass_streams_from_html(html, recursive_call)
-        if more_streams and len(more_streams) > 0:
-            streams += more_streams
+        try:
+            more_streams = _vkpass_streams_from_html(html, recursive_call)
+            if more_streams and len(more_streams) > 0:
+                streams += more_streams
+        except:
+            pass
 
     return streams
 
@@ -198,6 +207,29 @@ def _extract_videoz_url(html):
     return vkpass_streams(url.group(1), recursive_call=True)
 
 
+def _extract_jawcloud(html):
+    try:
+        url = re.search("\$\.get\('(.*?)'\+adb", html).group(1) + "0"
+
+        HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        req = urllib2.Request(url, headers=HEADERS)
+        resp = urllib2.urlopen(req)
+        chunk = resp.read()
+        resp.close()
+    except Exception, e:
+        pass
+
+    try:
+        url = re.search('<source src="(.*?)"', html).group(1)
+    except Exception, e:
+        pass
+
+    return [("", url)]
+
+
 def _vkpass_streams_from_html(html, recursive_call):
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
@@ -216,6 +248,10 @@ def _vkpass_streams_from_html(html, recursive_call):
     source_tags = re.findall(r'(<source.*?\/>)', html)
     if source_tags:
         return _extract_source_tags(html)
+
+    # Look for jawcloud
+    if re.findall("\$\.get\('https://jawcloud\.co", html):
+        return _extract_jawcloud(html)
 
     identifier = "vsource=["
 

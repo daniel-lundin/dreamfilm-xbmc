@@ -121,3 +121,7 @@ Improved pattern in _extract_videoz_url
 version 0.1.15.9
 ================
 Changed referer domain to "io", fixed error #48
+
+version 0.1.15.10
+=================
+Fixed issue #53: added resolver for jawcloud
