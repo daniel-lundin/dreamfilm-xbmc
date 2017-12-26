@@ -209,20 +209,6 @@ def _extract_videoz_url(html):
 
 def _extract_jawcloud(html):
     try:
-        url = re.search("\$\.get\('(.*?)'\+adb", html).group(1) + "0"
-
-        HEADERS = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        }
-        req = urllib2.Request(url, headers=HEADERS)
-        resp = urllib2.urlopen(req)
-        chunk = resp.read()
-        resp.close()
-    except Exception, e:
-        pass
-
-    try:
         url = re.search('<source src="(.*?)"', html).group(1)
     except Exception, e:
         pass
