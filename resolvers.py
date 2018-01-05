@@ -143,7 +143,7 @@ def vkpass_streams(url, recursive_call=False):
         html = response.read()
         response.close()
         #with open("vkpass.html", "w") as f:
-        #f.write(html)
+        #    f.write(html)
     except Exception, e:
         return None
 
@@ -174,7 +174,7 @@ def vkpass_streams(url, recursive_call=False):
             more_streams = _vkpass_streams_from_html(html, recursive_call)
             if more_streams and len(more_streams) > 0:
                 streams += more_streams
-        except:
+        except Exception, e:
             pass
 
     return streams
@@ -185,7 +185,7 @@ def _extract_packed_videourls(html):
     eval_end = html.find('</script>', eval_start)
     packed_script = html[eval_start: eval_end]
     unpacked_script = packer.unpack(packed_script)
-    return _extract_source_tags(unpacked_script)
+    return unpacked_script
 
 
 def _extract_source_tags(html):
@@ -209,7 +209,10 @@ def _extract_videoz_url(html):
 
 def _extract_jawcloud(html):
     try:
-        url = re.search('<source src="(.*?)"', html).group(1)
+        url = re.search('<source src="(.*?)"', html)
+        if not url:
+            url = re.search('src="(.*?)"', html)
+        url = url.group(1)
     except Exception, e:
         pass
 
@@ -228,7 +231,7 @@ def _vkpass_streams_from_html(html, recursive_call):
 
     # Look for p,a,c,k,e,d js files
     if html.find('eval(function(p,a,c,k,e') != -1:
-        return _extract_packed_videourls(html)
+        html = _extract_packed_videourls(html)
 
     # Look for video tag
     source_tags = re.findall(r'(<source.*?\/>)', html)
@@ -238,6 +241,14 @@ def _vkpass_streams_from_html(html, recursive_call):
     # Look for jawcloud
     if re.findall("\$\.get\('https://jawcloud\.co", html):
         return _extract_jawcloud(html)
+    if re.findall('src="https://jawcloud\.co', html):
+        url = re.search('src="(.*?)"', html).group(1)
+        req = urllib2.Request(url)
+        response = urllib2.urlopen(req)
+        html = response.read()
+        response.close()
+        return _extract_jawcloud(html)
+
 
     identifier = "vsource=["
 

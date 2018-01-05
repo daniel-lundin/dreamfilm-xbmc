@@ -125,3 +125,7 @@ Changed referer domain to "io", fixed error #48
 version 0.1.15.10
 =================
 Fixed issue #53: added resolver for jawcloud
+
+version 0.1.15.11
+=================
+improved resolver for jawcloud
