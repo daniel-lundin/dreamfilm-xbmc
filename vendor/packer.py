@@ -77,6 +77,19 @@ def _replacestrings(source):
         for index, value in enumerate(lookup):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
+
+    replaces = re.findall(r'\'(.+?)\'\.replace\(/(.+)/[gi]*,(.+?)\)', source,
+                          re.DOTALL)
+    if replaces:
+        for repl in replaces:
+            origstr = repl[0]
+            searchstr = repl[1].replace('\\', '')
+            try:
+                replstr = eval(repl[2].replace('\\', ''))
+            except Exception, e:
+                replstr = repl[2].replace('\\', '')
+            newstr = origstr.replace(searchstr, replstr)
+            source = source.replace(origstr, newstr)
     return source
 
 
