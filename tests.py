@@ -111,14 +111,14 @@ class APITests(unittest.TestCase):
             self.assertEqual(len(seasons), 7)
 
     def test_api_url_generation(self):
-        expected = 'http://www.dreamfilmhd.sh/API/api.php?type=list&offset=0&limit=25&q=Bad%20santa&sort=alpha'
+        expected = 'http://www.streamtajm.com/API/api.php?type=list&offset=0&limit=25&q=Bad%20santa&sort=alpha'
         url = dreamfilm._api_url(type='list', q="Bad santa", sort="alpha")
         self.assertEqual(expected, url)
 
     def test_paged_api_url_generation(self):
         pager = dreamfilm._paged_api_url(type='list', q="Bad santa", sort="alpha")
-        page1 = 'http://www.dreamfilmhd.sh/API/api.php?type=list&offset=25&limit=25&q=Bad%20santa&sort=alpha'
-        page2 = 'http://www.dreamfilmhd.sh/API/api.php?type=list&offset=50&limit=25&q=Bad%20santa&sort=alpha'
+        page1 = 'http://www.streamtajm.com/API/api.php?type=list&offset=25&limit=25&q=Bad%20santa&sort=alpha'
+        page2 = 'http://www.streamtajm.com/API/api.php?type=list&offset=50&limit=25&q=Bad%20santa&sort=alpha'
         self.assertEqual(pager(1), page1)
         self.assertEqual(pager(2), page2)
 
