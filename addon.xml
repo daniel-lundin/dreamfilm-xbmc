@@ -1,4 +1,4 @@
-<addon id="plugin.video.dreamfilm" name="Dreamfilm" provider-name="Daniel Lundin" version="0.1.15.12">
+<addon id="plugin.video.dreamfilm" name="Dreamfilm" provider-name="Daniel Lundin" version="0.1.15.13">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
   </requires>
@@ -7,7 +7,7 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary>Stream from http://dreamfilmhd.org</summary>
-    <description>Stream from http://dreamfilmhd.org</description>
+    <summary>Stream from http://streamtajm.com</summary>
+    <description>Stream from http://streamtajm.com</description>
   </extension>
 </addon>
