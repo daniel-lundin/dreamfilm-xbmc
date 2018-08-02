@@ -162,7 +162,9 @@ class Navigation(object):
     def play_movie(self, title, players_data):
         try:
             players = json.loads(players_data)
+            print 'getting streams url', players
             streams = dreamfilm.streams_from_player_url(players[0]['url'])
+            print 'got streams', streams
             subtitles = dreamfilm.subtitles_from_url(players[0]['url'])
             return self.select_stream(title, streams, subtitles)
         except Exception, e:

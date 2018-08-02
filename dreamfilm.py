@@ -4,6 +4,7 @@ import urllib2
 import re
 import json
 from codecs import BOM_UTF8
+import ssl
 
 import resolvers
 from models import Item, Episode, Season
@@ -106,6 +107,8 @@ def streams_from_player_url(url):
         return resolvers.google_streams(html)
     if 'dreamfilm.se' in url:
         return resolvers.leanback_streams(html)
+    if 'jawcloud.co' in url:
+        return resolvers.jawcloud_streams(html)
     return [('video', url)]
 
 
@@ -168,14 +171,9 @@ def _strip_bom(string, bom=BOM_UTF8):
         return string
 
 def _fetch_html(url):
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X; en-us) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53')]
-    response = opener.open(url)
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    response = urllib2.urlopen(url, context=ctx)
     return response.read()
-
-    response = urllib2.urlopen(url)
-    html = response.read()
-    return html
 
 def _head_request(url):
     request = urllib2.Request(url)

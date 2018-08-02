@@ -49,6 +49,12 @@ class ParseTests(unittest.TestCase):
             formats = resolvers._vkpass_streams_from_html(html, False)
             self.assertEqual(len(formats), 2)
 
+    def test_jawcloud_resolver(self):
+        with open('fixtures/jawcloud_player.html') as f:
+            html = f.read()
+            formats = resolvers._extract_jawcloud(html)
+            self.assertEqual(len(formats), 1)
+
     # def test_vk_pass_resolver_videoz(self):
     #     with open('fixtures/vkpass_videoz.html') as f:
     #         html = f.read()

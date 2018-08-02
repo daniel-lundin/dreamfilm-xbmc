@@ -179,6 +179,8 @@ def vkpass_streams(url, recursive_call=False):
 
     return streams
 
+def jawcloud_streams(html):
+    return _extract_jawcloud(html)
 
 def _extract_packed_videourls(html):
     eval_start = html.find('eval(function(p,a,c,k,e')
