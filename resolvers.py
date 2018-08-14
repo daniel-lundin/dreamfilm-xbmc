@@ -220,6 +220,10 @@ def _extract_jawcloud(html):
 
     return [("", url)]
 
+def extract_jawcloud_subtitle(html):
+    subtitles = re.findall('<track.*src="(.*?)"', html)
+
+    return subtitles
 
 def _vkpass_streams_from_html(html, recursive_call):
     HEADERS = {

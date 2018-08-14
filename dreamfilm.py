@@ -84,7 +84,8 @@ def list_seasons(serie_id):
 
 def list_genre(genre, serie, page):
     url = _api_url(genres=genre, page=page, serie=serie, sort='alpha', climb='1')
-    api_response  = _api_request(url)
+    print 'list genre url', url
+    api_response = _api_request(url)
     return _apiresponse_to_items(api_response)
 
 
@@ -113,6 +114,10 @@ def streams_from_player_url(url):
 
 
 def subtitles_from_url(url):
+    if 'jawcloud' in url:
+        html = _fetch_html(url)
+        return resolvers.extract_jawcloud_subtitle(html)
+
     subs = re.findall('&c\d+_file=\s*(?P<url>.*?)\s*[&$]', url)
 
     for idx, s in enumerate(subs):
@@ -170,6 +175,15 @@ def _strip_bom(string, bom=BOM_UTF8):
     else:
         return string
 
+def memoize(f):
+    memo = {}
+    def helper(x):
+        if x not in memo:            
+            memo[x] = f(x)
+        return memo[x]
+    return helper
+
+@memoize
 def _fetch_html(url):
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     response = urllib2.urlopen(url, context=ctx)
